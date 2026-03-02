@@ -1,0 +1,2606 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<meta name="description" content="BizFlow — Smart Business OS for Indian MSMEs"/>
+<title>BizFlow — Business OS</title>
+<link rel="manifest" href="manifest.json"/>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=Instrument+Sans:ital,wght@0,400;0,500;0,600;1,400&display=swap" rel="stylesheet"/>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+
+<style>
+/* ═══════════════════════════════════════════
+   BIZFLOW — Design System
+═══════════════════════════════════════════ */
+:root {
+  --primary: #0f4c35;
+  --primary-light: #1a7a57;
+  --accent: #f5a623;
+  --accent-light: #fbbf24;
+  --bg: #f7f6f1;
+  --bg2: #eeecea;
+  --bg3: #ffffff;
+  --surface: #ffffff;
+  --surface2: #f0eeea;
+  --border: #e2dfd8;
+  --text: #1a1814;
+  --text2: #6b6560;
+  --text3: #9b9591;
+  --success: #16a34a;
+  --danger: #dc2626;
+  --warning: #d97706;
+  --info: #2563eb;
+  --radius: 14px;
+  --radius-sm: 8px;
+  --shadow: 0 2px 12px rgba(0,0,0,0.07);
+  --shadow-lg: 0 8px 32px rgba(0,0,0,0.12);
+  --font-display: 'Syne', sans-serif;
+  --font-body: 'Instrument Sans', sans-serif;
+  --sidebar-w: 260px;
+  --topbar-h: 64px;
+}
+
+[data-theme="dark"] {
+  --bg: #0d0f0e;
+  --bg2: #141715;
+  --bg3: #1a1d1b;
+  --surface: #1e2220;
+  --surface2: #252927;
+  --border: #2d3330;
+  --text: #f0ede8;
+  --text2: #9ba8a2;
+  --text3: #5c6b65;
+  --primary: #22c47e;
+  --primary-light: #16a362;
+  --shadow: 0 2px 12px rgba(0,0,0,0.3);
+  --shadow-lg: 0 8px 32px rgba(0,0,0,0.4);
+}
+
+* { margin:0; padding:0; box-sizing:border-box; }
+
+html, body {
+  font-family: var(--font-body);
+  background: var(--bg);
+  color: var(--text);
+  font-size: 16px;
+  line-height: 1.5;
+  min-height: 100vh;
+  transition: background 0.3s, color 0.3s;
+}
+
+/* Scrollbar */
+::-webkit-scrollbar { width: 6px; height: 6px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+
+/* ── LAYOUT ────────────────────────────── */
+.app-shell { display: flex; min-height: 100vh; }
+
+.sidebar {
+  width: var(--sidebar-w);
+  background: var(--surface);
+  border-right: 1px solid var(--border);
+  display: flex;
+  flex-direction: column;
+  position: fixed;
+  left: 0; top: 0; bottom: 0;
+  z-index: 100;
+  transition: transform 0.3s cubic-bezier(0.4,0,0.2,1);
+}
+
+.main-area {
+  margin-left: var(--sidebar-w);
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+.topbar {
+  height: var(--topbar-h);
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  padding: 0 24px;
+  gap: 16px;
+  position: sticky;
+  top: 0;
+  z-index: 50;
+}
+
+.page-content {
+  flex: 1;
+  padding: 28px 28px 40px;
+  max-width: 1200px;
+}
+
+/* ── SIDEBAR ────────────────────────────── */
+.sidebar-logo {
+  padding: 20px 20px 16px;
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.logo-mark {
+  width: 36px; height: 36px;
+  background: var(--primary);
+  border-radius: 10px;
+  display: grid;
+  place-items: center;
+  color: white;
+  font-family: var(--font-display);
+  font-weight: 800;
+  font-size: 18px;
+}
+
+.logo-text {
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 20px;
+  color: var(--text);
+  letter-spacing: -0.5px;
+}
+
+.logo-text span { color: var(--primary); }
+
+.sidebar-nav {
+  flex: 1;
+  padding: 12px 10px;
+  overflow-y: auto;
+}
+
+.nav-section-label {
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  color: var(--text3);
+  padding: 12px 10px 6px;
+}
+
+.nav-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 12px;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--text2);
+  transition: all 0.15s;
+  margin-bottom: 2px;
+  border: none;
+  background: transparent;
+  width: 100%;
+  text-align: left;
+}
+
+.nav-item:hover { background: var(--surface2); color: var(--text); }
+.nav-item.active { background: var(--primary); color: white; }
+.nav-item.active .nav-icon { opacity: 1; }
+.nav-icon { width: 18px; height: 18px; opacity: 0.6; flex-shrink: 0; }
+.nav-item.active .nav-icon { opacity: 1; }
+
+.sidebar-footer {
+  padding: 12px 10px;
+  border-top: 1px solid var(--border);
+}
+
+/* ── TOPBAR ────────────────────────────── */
+.topbar-title {
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 20px;
+  flex: 1;
+}
+
+.topbar-actions { display: flex; align-items: center; gap: 10px; }
+
+.icon-btn {
+  width: 38px; height: 38px;
+  border-radius: 10px;
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  cursor: pointer;
+  display: grid;
+  place-items: center;
+  color: var(--text2);
+  transition: all 0.15s;
+  flex-shrink: 0;
+}
+.icon-btn:hover { background: var(--border); color: var(--text); }
+
+.avatar {
+  width: 36px; height: 36px;
+  border-radius: 50%;
+  background: var(--primary);
+  color: white;
+  display: grid;
+  place-items: center;
+  font-weight: 700;
+  font-size: 14px;
+  cursor: pointer;
+  flex-shrink: 0;
+}
+
+/* ── BUTTONS ────────────────────────────── */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  padding: 10px 18px;
+  border-radius: var(--radius-sm);
+  font-family: var(--font-body);
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  border: none;
+  transition: all 0.15s;
+  white-space: nowrap;
+  min-height: 40px;
+}
+.btn-primary { background: var(--primary); color: white; }
+.btn-primary:hover { background: var(--primary-light); }
+.btn-outline { background: transparent; color: var(--text); border: 1px solid var(--border); }
+.btn-outline:hover { background: var(--surface2); }
+.btn-accent { background: var(--accent); color: white; }
+.btn-accent:hover { background: var(--accent-light); }
+.btn-danger { background: var(--danger); color: white; }
+.btn-danger:hover { opacity: 0.9; }
+.btn-sm { padding: 7px 13px; font-size: 13px; min-height: 34px; }
+.btn-lg { padding: 13px 24px; font-size: 16px; min-height: 48px; }
+.btn:disabled { opacity: 0.5; cursor: not-allowed; }
+.btn-wa { background: #25D366; color: white; }
+.btn-wa:hover { background: #1da851; }
+
+/* ── CARDS ────────────────────────────── */
+.card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 20px;
+  box-shadow: var(--shadow);
+}
+
+.card-sm { padding: 14px 16px; }
+
+/* ── STATS GRID ────────────────────────── */
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 16px;
+  margin-bottom: 24px;
+}
+
+.stat-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 18px 20px;
+  box-shadow: var(--shadow);
+}
+
+.stat-label { font-size: 12px; font-weight: 600; color: var(--text3); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 6px; }
+.stat-value { font-family: var(--font-display); font-size: 26px; font-weight: 700; color: var(--text); }
+.stat-sub { font-size: 12px; color: var(--text2); margin-top: 4px; }
+.stat-badge { display: inline-flex; align-items: center; gap: 3px; font-size: 11px; font-weight: 600; padding: 2px 7px; border-radius: 20px; margin-top: 6px; }
+.stat-up { background: #dcfce7; color: #15803d; }
+.stat-down { background: #fee2e2; color: #dc2626; }
+[data-theme="dark"] .stat-up { background: #14532d44; color: #4ade80; }
+[data-theme="dark"] .stat-down { background: #7f1d1d44; color: #f87171; }
+
+/* ── FORMS ────────────────────────────── */
+.form-group { margin-bottom: 16px; }
+.form-label { display: block; font-size: 13px; font-weight: 600; color: var(--text2); margin-bottom: 6px; }
+.form-input, .form-select, .form-textarea {
+  width: 100%;
+  padding: 10px 14px;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  font-family: var(--font-body);
+  font-size: 15px;
+  color: var(--text);
+  transition: border 0.15s, box-shadow 0.15s;
+  min-height: 44px;
+}
+.form-input:focus, .form-select:focus, .form-textarea:focus {
+  outline: none;
+  border-color: var(--primary);
+  box-shadow: 0 0 0 3px rgba(15,76,53,0.1);
+}
+[data-theme="dark"] .form-input:focus, [data-theme="dark"] .form-select:focus { box-shadow: 0 0 0 3px rgba(34,196,126,0.15); }
+.form-textarea { resize: vertical; min-height: 90px; }
+.form-grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+.form-grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 14px; }
+
+/* ── TABLE ────────────────────────────── */
+.table-wrap { overflow-x: auto; border-radius: var(--radius); border: 1px solid var(--border); }
+table { width: 100%; border-collapse: collapse; font-size: 14px; }
+thead { background: var(--surface2); }
+th { padding: 11px 14px; text-align: left; font-size: 12px; font-weight: 600; color: var(--text2); text-transform: uppercase; letter-spacing: 0.5px; white-space: nowrap; }
+td { padding: 13px 14px; border-top: 1px solid var(--border); vertical-align: middle; }
+tr:hover td { background: var(--surface2); }
+
+/* ── BADGE ────────────────────────────── */
+.badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 3px 9px;
+  border-radius: 20px;
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+}
+.badge-success { background: #dcfce7; color: #15803d; }
+.badge-warning { background: #fef3c7; color: #92400e; }
+.badge-danger { background: #fee2e2; color: #991b1b; }
+.badge-info { background: #dbeafe; color: #1e40af; }
+.badge-neutral { background: var(--surface2); color: var(--text2); }
+[data-theme="dark"] .badge-success { background: #14532d44; color: #4ade80; }
+[data-theme="dark"] .badge-warning { background: #78350f44; color: #fbbf24; }
+[data-theme="dark"] .badge-danger { background: #7f1d1d44; color: #f87171; }
+[data-theme="dark"] .badge-info { background: #1e3a8a44; color: #93c5fd; }
+
+/* ── MODAL ────────────────────────────── */
+.modal-overlay {
+  position: fixed; inset: 0;
+  background: rgba(0,0,0,0.5);
+  backdrop-filter: blur(4px);
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  animation: fadeIn 0.2s ease;
+}
+.modal {
+  background: var(--surface);
+  border-radius: var(--radius);
+  padding: 28px;
+  width: 100%;
+  max-width: 560px;
+  max-height: 90vh;
+  overflow-y: auto;
+  box-shadow: var(--shadow-lg);
+  animation: slideUp 0.25s cubic-bezier(0.4,0,0.2,1);
+}
+.modal-lg { max-width: 800px; }
+.modal-xl { max-width: 1000px; }
+.modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 22px; }
+.modal-title { font-family: var(--font-display); font-size: 20px; font-weight: 700; }
+.modal-close { cursor: pointer; color: var(--text3); }
+
+@keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+@keyframes slideUp { from { transform: translateY(20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+
+/* ── TOAST ────────────────────────────── */
+#toast-container {
+  position: fixed;
+  bottom: 24px;
+  right: 24px;
+  z-index: 9999;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.toast {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 12px 16px;
+  font-size: 14px;
+  box-shadow: var(--shadow-lg);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 280px;
+  animation: slideUp 0.25s ease;
+}
+.toast.success { border-left: 3px solid var(--success); }
+.toast.error { border-left: 3px solid var(--danger); }
+.toast.info { border-left: 3px solid var(--info); }
+
+/* ── PAGE HEADERS ────────────────────────── */
+.page-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  margin-bottom: 24px;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+.page-title { font-family: var(--font-display); font-size: 26px; font-weight: 800; }
+.page-subtitle { font-size: 14px; color: var(--text2); margin-top: 4px; }
+
+/* ── PROGRESS BAR ────────────────────────── */
+.progress-bar { height: 8px; background: var(--surface2); border-radius: 4px; overflow: hidden; }
+.progress-fill { height: 100%; border-radius: 4px; transition: width 0.5s ease; }
+
+/* ── SEARCH ────────────────────────────── */
+.search-wrap { position: relative; flex: 1; max-width: 320px; }
+.search-wrap svg { position: absolute; left: 11px; top: 50%; transform: translateY(-50%); color: var(--text3); }
+.search-input {
+  width: 100%;
+  padding: 9px 14px 9px 36px;
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  font-size: 14px;
+  color: var(--text);
+  font-family: var(--font-body);
+}
+.search-input:focus { outline: none; border-color: var(--primary); }
+
+/* ── AUTH PAGE ────────────────────────── */
+.auth-page {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--bg);
+  padding: 24px;
+}
+
+.auth-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  padding: 40px;
+  width: 100%;
+  max-width: 440px;
+  box-shadow: var(--shadow-lg);
+}
+
+.auth-logo { text-align: center; margin-bottom: 28px; }
+.auth-logo .logo-mark-lg {
+  width: 56px; height: 56px;
+  background: var(--primary);
+  border-radius: 16px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--font-display);
+  font-weight: 800;
+  font-size: 28px;
+  color: white;
+  margin-bottom: 12px;
+}
+.auth-title { font-family: var(--font-display); font-size: 28px; font-weight: 800; }
+.auth-subtitle { color: var(--text2); font-size: 15px; margin-top: 4px; }
+
+.divider { display: flex; align-items: center; gap: 12px; margin: 20px 0; color: var(--text3); font-size: 13px; }
+.divider::before, .divider::after { content: ''; flex: 1; height: 1px; background: var(--border); }
+
+.google-btn {
+  width: 100%;
+  padding: 11px 18px;
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  font-family: var(--font-body);
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--text);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  transition: all 0.15s;
+  min-height: 48px;
+}
+.google-btn:hover { background: var(--border); }
+
+/* ── NICHE SELECTOR ────────────────────── */
+.niche-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+  gap: 12px;
+  margin: 20px 0;
+}
+.niche-card {
+  background: var(--surface2);
+  border: 2px solid var(--border);
+  border-radius: var(--radius);
+  padding: 18px 14px;
+  text-align: center;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.niche-card:hover { border-color: var(--primary); background: var(--surface); }
+.niche-card.selected { border-color: var(--primary); background: var(--primary); color: white; }
+.niche-icon { font-size: 28px; margin-bottom: 8px; }
+.niche-name { font-size: 13px; font-weight: 600; }
+
+/* ── LANGUAGE SELECTOR ─────────────────── */
+.lang-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 8px;
+  max-height: 300px;
+  overflow-y: auto;
+}
+.lang-chip {
+  padding: 8px 6px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  font-size: 12px;
+  text-align: center;
+  cursor: pointer;
+  transition: all 0.15s;
+  background: var(--surface2);
+}
+.lang-chip:hover { border-color: var(--primary); }
+.lang-chip.selected { background: var(--primary); color: white; border-color: var(--primary); }
+
+/* ── CASH FLOW WIDGETS ─────────────────── */
+.flow-widgets { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 16px; margin-bottom: 24px; }
+.flow-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 20px;
+  position: relative;
+  overflow: hidden;
+}
+.flow-card::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 3px;
+}
+.flow-in::before { background: var(--success); }
+.flow-out::before { background: var(--danger); }
+.flow-net::before { background: var(--accent); }
+.flow-label { font-size: 12px; font-weight: 600; color: var(--text3); text-transform: uppercase; margin-bottom: 8px; }
+.flow-value { font-family: var(--font-display); font-size: 28px; font-weight: 800; }
+.flow-in .flow-value { color: var(--success); }
+.flow-out .flow-value { color: var(--danger); }
+.flow-net .flow-value { color: var(--accent); }
+
+/* ── WHATSAPP ──────────────────────────── */
+.wa-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  background: #25D366;
+  color: white;
+  padding: 4px 10px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+/* ── GOV REG STEPS ─────────────────────── */
+.steps-list { counter-reset: step; }
+.step-item {
+  display: flex;
+  gap: 16px;
+  padding: 16px 0;
+  border-bottom: 1px solid var(--border);
+  align-items: flex-start;
+}
+.step-item:last-child { border-bottom: none; }
+.step-num {
+  width: 32px; height: 32px;
+  background: var(--primary);
+  color: white;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  font-weight: 700;
+  font-size: 14px;
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+.step-done .step-num { background: var(--success); }
+.step-content { flex: 1; }
+.step-title { font-weight: 600; font-size: 15px; margin-bottom: 4px; }
+.step-desc { font-size: 13px; color: var(--text2); }
+
+/* ── TABS ─────────────────────────────── */
+.tabs { display: flex; gap: 4px; background: var(--surface2); padding: 4px; border-radius: var(--radius-sm); margin-bottom: 20px; width: fit-content; }
+.tab { padding: 8px 16px; border-radius: 6px; font-size: 14px; font-weight: 500; cursor: pointer; color: var(--text2); transition: all 0.15s; border: none; background: transparent; font-family: var(--font-body); }
+.tab.active { background: var(--surface); color: var(--text); box-shadow: 0 1px 3px rgba(0,0,0,0.1); font-weight: 600; }
+
+/* ── MAP EMBED ─────────────────────────── */
+.map-container {
+  width: 100%;
+  height: 360px;
+  border-radius: var(--radius);
+  border: 1px solid var(--border);
+  overflow: hidden;
+  background: var(--surface2);
+}
+
+/* ── LANG SWITCHER ─────────────────────── */
+.lang-switcher {
+  position: relative;
+}
+.lang-dropdown {
+  position: absolute;
+  top: calc(100% + 8px);
+  right: 0;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow-lg);
+  padding: 8px;
+  min-width: 200px;
+  z-index: 200;
+  max-height: 320px;
+  overflow-y: auto;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 4px;
+}
+.lang-opt {
+  padding: 8px 10px;
+  border-radius: 6px;
+  font-size: 13px;
+  cursor: pointer;
+  transition: background 0.1s;
+}
+.lang-opt:hover { background: var(--surface2); }
+.lang-opt.active { background: var(--primary); color: white; }
+
+/* ── RESPONSIVE ────────────────────────── */
+@media (max-width: 768px) {
+  .sidebar {
+    transform: translateX(-100%);
+    width: 280px;
+  }
+  .sidebar.open { transform: translateX(0); }
+  .main-area { margin-left: 0; }
+  .page-content { padding: 16px; }
+  .form-grid-2, .form-grid-3 { grid-template-columns: 1fr; }
+  .flow-widgets { grid-template-columns: 1fr; }
+  .stats-grid { grid-template-columns: 1fr 1fr; }
+  .modal { padding: 20px; }
+  .niche-grid { grid-template-columns: repeat(3, 1fr); }
+  .lang-grid { grid-template-columns: repeat(3, 1fr); }
+}
+
+/* ── UTILS ─────────────────────────────── */
+.flex { display: flex; }
+.flex-col { flex-direction: column; }
+.items-center { align-items: center; }
+.justify-between { justify-content: space-between; }
+.gap-2 { gap: 8px; }
+.gap-3 { gap: 12px; }
+.gap-4 { gap: 16px; }
+.mb-4 { margin-bottom: 16px; }
+.mb-6 { margin-bottom: 24px; }
+.mt-4 { margin-top: 16px; }
+.text-sm { font-size: 13px; }
+.text-xs { font-size: 11px; }
+.text-muted { color: var(--text2); }
+.font-bold { font-weight: 700; }
+.text-success { color: var(--success); }
+.text-danger { color: var(--danger); }
+.text-warning { color: var(--warning); }
+.hidden { display: none !important; }
+.sidebar-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.4);
+  z-index: 90;
+  display: none;
+}
+.sidebar-overlay.show { display: block; }
+
+/* Loading spinner */
+.spinner {
+  width: 20px; height: 20px;
+  border: 2px solid var(--border);
+  border-top-color: var(--primary);
+  border-radius: 50%;
+  animation: spin 0.7s linear infinite;
+  display: inline-block;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+
+/* Inline color dot */
+.dot { width: 8px; height: 8px; border-radius: 50%; display: inline-block; }
+.dot-green { background: var(--success); }
+.dot-red { background: var(--danger); }
+.dot-yellow { background: var(--warning); }
+</style>
+</head>
+
+<body>
+<div id="app">
+  <!-- Rendered by JS -->
+</div>
+
+<div id="toast-container"></div>
+<div id="modal-container"></div>
+
+<script>
+// ═══════════════════════════════════════════════════════════════════
+// BIZFLOW — Full Stack App
+// ═══════════════════════════════════════════════════════════════════
+
+// ── SUPABASE CONFIG ────────────────────────────────────────────────
+const SUPABASE_URL = 'https://cumwoqyorkgikwfqnhdd.supabase.co';
+const SUPABASE_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImN1bXdvcXlvcmtnaWt3ZnFuaGRkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzIyMDIwNDUsImV4cCI6MjA4Nzc3ODA0NX0.YpsU_ysJaoG52v7y0j-w-3vEoIlCCiPxSpZ9Qp2OeNg';
+const sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON);
+
+// ── STATE ──────────────────────────────────────────────────────────
+const state = {
+  user: null,
+  profile: null,
+  theme: localStorage.getItem('theme') || 'light',
+  lang: localStorage.getItem('lang') || 'en',
+  page: 'dashboard',
+  sidebarOpen: false,
+  langDropOpen: false,
+  orders: [],
+  inventory: [],
+  payments: [],
+  suppliers: [],
+  community: [],
+  loading: false,
+};
+
+// Apply theme
+document.documentElement.setAttribute('data-theme', state.theme);
+
+// ── TRANSLATIONS ───────────────────────────────────────────────────
+const LANGS = {
+  en: 'English', hi: 'हिंदी', gu: 'ગુજરાતી', mr: 'मराठी',
+  bn: 'বাংলা', ta: 'தமிழ்', te: 'తెలుగు', kn: 'ಕನ್ನಡ',
+  ml: 'മലയാളം', pa: 'ਪੰਜਾਬੀ', ur: 'اردو', or: 'ଓଡ଼ିଆ',
+  as: 'অসমীয়া', mai: 'मैथिली', sat: 'ᱥᱟᱱᱛᱟᱲᱤ', ks: 'كشميري',
+  ne: 'नेपाली', sd: 'سنڌي', doi: 'डोगरी', ko: '한국어',
+  zh: '中文', ar: 'العربية'
+};
+
+const T = {
+  en: {
+    dashboard: 'Dashboard', orders: 'Orders', inventory: 'Inventory',
+    payments: 'Payments', suppliers: 'Suppliers', community: 'Community',
+    settings: 'Settings', logout: 'Logout', profile: 'Profile',
+    govReg: 'Gov Registration', addLocation: 'Add Location',
+    newOrder: 'New Order', newProduct: 'New Product', newPayment: 'New Payment',
+    totalRevenue: 'Total Revenue', pendingOrders: 'Pending Orders',
+    lowStock: 'Low Stock', overduePayments: 'Overdue Payments',
+    incomingMoney: 'Incoming This Week', outgoingMoney: 'Outgoing This Week',
+    netPosition: 'Net Position', sendWA: 'Send on WhatsApp',
+    search: 'Search...', save: 'Save', cancel: 'Cancel', delete: 'Delete',
+    edit: 'Edit', confirm: 'Confirm', loading: 'Loading...',
+    businessName: 'Business Name', ownerName: 'Owner Name',
+    phone: 'Phone', email: 'Email', address: 'Address',
+    gstin: 'GSTIN', pan: 'PAN', niche: 'Business Type',
+    amount: 'Amount', date: 'Date', status: 'Status', actions: 'Actions',
+    customer: 'Customer', product: 'Product', qty: 'Quantity',
+    price: 'Price', total: 'Total', notes: 'Notes',
+    welcome: 'Welcome back', today: "Today's Overview",
+    generateInvoice: 'Generate GST Invoice', waReminder: 'WhatsApp Reminder',
+  },
+  hi: {
+    dashboard: 'डैशबोर्ड', orders: 'ऑर्डर', inventory: 'इन्वेंट्री',
+    payments: 'भुगतान', suppliers: 'सप्लायर', community: 'समुदाय',
+    settings: 'सेटिंग', logout: 'लॉगआउट', profile: 'प्रोफाइल',
+    govReg: 'सरकारी रजिस्ट्रेशन', addLocation: 'स्थान जोड़ें',
+    newOrder: 'नया ऑर्डर', newProduct: 'नया उत्पाद', newPayment: 'नया भुगतान',
+    totalRevenue: 'कुल आय', pendingOrders: 'लंबित ऑर्डर',
+    lowStock: 'कम स्टॉक', overduePayments: 'बकाया भुगतान',
+    incomingMoney: 'आने वाला पैसा', outgoingMoney: 'जाने वाला पैसा',
+    netPosition: 'शुद्ध स्थिति', sendWA: 'WhatsApp पर भेजें',
+    search: 'खोजें...', save: 'सहेजें', cancel: 'रद्द करें', delete: 'हटाएं',
+    edit: 'संपादित करें', confirm: 'पुष्टि करें', loading: 'लोड हो रहा है...',
+    businessName: 'व्यवसाय का नाम', ownerName: 'मालिक का नाम',
+    phone: 'फोन', email: 'ईमेल', address: 'पता',
+    gstin: 'GSTIN', pan: 'PAN', niche: 'व्यवसाय प्रकार',
+    amount: 'राशि', date: 'तारीख', status: 'स्थिति', actions: 'कार्रवाई',
+    customer: 'ग्राहक', product: 'उत्पाद', qty: 'मात्रा',
+    price: 'मूल्य', total: 'कुल', notes: 'नोट्स',
+    welcome: 'वापसी पर स्वागत', today: 'आज का विवरण',
+    generateInvoice: 'GST इनवॉइस बनाएं', waReminder: 'WhatsApp रिमाइंडर',
+  }
+};
+
+function t(key) {
+  const lang = state.lang;
+  return (T[lang] && T[lang][key]) || T.en[key] || key;
+}
+
+// ── NICHES ─────────────────────────────────────────────────────────
+const NICHES = [
+  { id: 'textile', emoji: '🧵', name: 'Textile / Apparel', units: ['Metres', 'KG', 'Rolls'] },
+  { id: 'pharma', emoji: '💊', name: 'Pharma Distribution', units: ['Strips', 'Boxes', 'Vials'] },
+  { id: 'steel', emoji: '⚙️', name: 'Steel / Metal', units: ['KG', 'Tonnes', 'Pieces'] },
+  { id: 'electrical', emoji: '🔌', name: 'Electrical Goods', units: ['Pieces', 'Sets', 'Rolls'] },
+  { id: 'agri', emoji: '🌾', name: 'Agri / FMCG', units: ['KG', 'Quintals', 'Bags'] },
+  { id: 'construction', emoji: '🏗️', name: 'Construction', units: ['Bags', 'Tonnes', 'Sq.ft'] },
+  { id: 'auto', emoji: '🚗', name: 'Auto Parts', units: ['Pieces', 'Sets', 'Nos'] },
+  { id: 'retail', emoji: '🛒', name: 'General Retail', units: ['Pieces', 'Boxes', 'Units'] },
+];
+
+// ── SUPABASE HELPERS ───────────────────────────────────────────────
+async function fetchProfile(userId) {
+  const { data } = await sb.from('profiles').select('*').eq('id', userId).single();
+  return data;
+}
+
+async function upsertProfile(data) {
+  const { error } = await sb.from('profiles').upsert(data);
+  if (error) throw error;
+}
+
+async function fetchOrders() {
+  const { data } = await sb.from('orders').select('*').eq('user_id', state.user?.id).order('created_at', { ascending: false });
+  state.orders = data || [];
+}
+
+async function fetchInventory() {
+  const { data } = await sb.from('inventory').select('*').eq('user_id', state.user?.id).order('name');
+  state.inventory = data || [];
+}
+
+async function fetchPayments() {
+  const { data } = await sb.from('payments').select('*').eq('user_id', state.user?.id).order('due_date');
+  state.payments = data || [];
+}
+
+async function fetchSuppliers() {
+  const { data } = await sb.from('suppliers').select('*').eq('user_id', state.user?.id).order('name');
+  state.suppliers = data || [];
+}
+
+async function fetchCommunity() {
+  const { data } = await sb.from('community_posts').select('*, profiles(business_name, niche)').order('created_at', { ascending: false }).limit(30);
+  state.community = data || [];
+}
+
+// ── TOAST ──────────────────────────────────────────────────────────
+function toast(msg, type = 'info') {
+  const icons = { success: '✅', error: '❌', info: 'ℹ️' };
+  const el = document.createElement('div');
+  el.className = `toast ${type}`;
+  el.innerHTML = `<span>${icons[type]}</span><span>${msg}</span>`;
+  document.getElementById('toast-container').appendChild(el);
+  setTimeout(() => el.remove(), 3500);
+}
+
+// ── MODAL ──────────────────────────────────────────────────────────
+function openModal(html) {
+  const overlay = document.createElement('div');
+  overlay.className = 'modal-overlay';
+  overlay.innerHTML = html;
+  overlay.addEventListener('click', e => { if (e.target === overlay) overlay.remove(); });
+  document.getElementById('modal-container').appendChild(overlay);
+  return overlay;
+}
+
+function closeModal() {
+  document.querySelector('.modal-overlay')?.remove();
+}
+
+// ── WHATSAPP ───────────────────────────────────────────────────────
+function sendWhatsApp(phone, message) {
+  const num = phone.replace(/\D/g, '');
+  const url = `https://wa.me/${num.startsWith('91') ? num : '91' + num}?text=${encodeURIComponent(message)}`;
+  window.open(url, '_blank');
+}
+
+// ── RENDER ENGINE ──────────────────────────────────────────────────
+function render() {
+  const app = document.getElementById('app');
+  if (!state.user) {
+    app.innerHTML = renderAuth();
+    bindAuthEvents();
+    return;
+  }
+  if (!state.profile?.niche) {
+    app.innerHTML = renderNicheSelector();
+    bindNicheEvents();
+    return;
+  }
+
+  app.innerHTML = `
+    <div class="sidebar-overlay ${state.sidebarOpen ? 'show' : ''}" onclick="toggleSidebar()"></div>
+    <div class="app-shell">
+      ${renderSidebar()}
+      <div class="main-area">
+        ${renderTopbar()}
+        <div class="page-content">
+          ${renderPage()}
+        </div>
+      </div>
+    </div>
+  `;
+  bindPageEvents();
+}
+
+// ── AUTH ───────────────────────────────────────────────────────────
+function renderAuth() {
+  return `
+  <div class="auth-page">
+    <div class="auth-card">
+      <div class="auth-logo">
+        <div><div class="logo-mark-lg">B</div></div>
+        <div class="auth-title">BizFlow</div>
+        <div class="auth-subtitle">Smart Business OS for Indian MSMEs</div>
+      </div>
+
+      <div id="auth-tabs" class="tabs" style="width:100%;justify-content:center;margin-bottom:24px;">
+        <button class="tab active" onclick="switchAuthTab('login')">Login</button>
+        <button class="tab" onclick="switchAuthTab('register')">Register</button>
+      </div>
+
+      <div id="auth-login">
+        <div class="form-group">
+          <label class="form-label">Email</label>
+          <input id="auth-email" class="form-input" type="email" placeholder="owner@business.com"/>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Password</label>
+          <input id="auth-pass" class="form-input" type="password" placeholder="••••••••"/>
+        </div>
+        <button class="btn btn-primary" style="width:100%;justify-content:center;" onclick="doLogin()">Login</button>
+      </div>
+
+      <div id="auth-register" class="hidden">
+        <div class="form-group">
+          <label class="form-label">Email</label>
+          <input id="reg-email" class="form-input" type="email" placeholder="owner@business.com"/>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Password</label>
+          <input id="reg-pass" class="form-input" type="password" placeholder="Min 6 characters"/>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Business Name</label>
+          <input id="reg-biz" class="form-input" type="text" placeholder="Your Business Name"/>
+        </div>
+        <button class="btn btn-primary" style="width:100%;justify-content:center;" onclick="doRegister()">Create Account</button>
+      </div>
+
+      <div class="divider">or</div>
+
+      <button class="google-btn" onclick="doGoogleLogin()">
+        <svg width="18" height="18" viewBox="0 0 24 24"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/></svg>
+        Continue with Google
+      </button>
+
+      <p style="text-align:center;font-size:12px;color:var(--text3);margin-top:20px;">
+        By signing up, you agree to BizFlow's Terms & Privacy Policy
+      </p>
+    </div>
+  </div>`;
+}
+
+function switchAuthTab(tab) {
+  document.querySelectorAll('#auth-tabs .tab').forEach((t, i) => {
+    t.classList.toggle('active', (tab === 'login' && i === 0) || (tab === 'register' && i === 1));
+  });
+  document.getElementById('auth-login').classList.toggle('hidden', tab !== 'login');
+  document.getElementById('auth-register').classList.toggle('hidden', tab !== 'register');
+}
+
+async function doLogin() {
+  const email = document.getElementById('auth-email').value;
+  const password = document.getElementById('auth-pass').value;
+  if (!email || !password) { toast('Please fill all fields', 'error'); return; }
+  const { data, error } = await sb.auth.signInWithPassword({ email, password });
+  if (error) { toast(error.message, 'error'); return; }
+  state.user = data.user;
+  await loadUserData();
+  render();
+}
+
+async function doRegister() {
+  const email = document.getElementById('reg-email').value;
+  const password = document.getElementById('reg-pass').value;
+  const bizName = document.getElementById('reg-biz').value;
+  if (!email || !password || !bizName) { toast('Please fill all fields', 'error'); return; }
+  const { data, error } = await sb.auth.signUp({ email, password });
+  if (error) { toast(error.message, 'error'); return; }
+  state.user = data.user;
+  // Create profile
+  await sb.from('profiles').upsert({ id: data.user.id, email, business_name: bizName });
+  toast('Account created! Please select your business type.', 'success');
+  render();
+}
+
+async function doGoogleLogin() {
+  const { error } = await sb.auth.signInWithOAuth({
+    provider: 'google',
+    options: { redirectTo: window.location.href }
+  });
+  if (error) toast(error.message, 'error');
+}
+
+function bindAuthEvents() {
+  document.querySelectorAll('.form-input').forEach(el => {
+    el.addEventListener('keypress', e => { if (e.key === 'Enter') { if (document.getElementById('auth-login').classList.contains('hidden')) doRegister(); else doLogin(); } });
+  });
+}
+
+// ── NICHE SELECTOR ─────────────────────────────────────────────────
+function renderNicheSelector() {
+  return `
+  <div class="auth-page" style="align-items:flex-start;padding-top:60px;">
+    <div style="width:100%;max-width:640px;margin:0 auto;">
+      <div style="text-align:center;margin-bottom:32px;">
+        <div class="logo-mark" style="width:48px;height:48px;font-size:22px;display:inline-flex;place-items:center;justify-content:center;border-radius:14px;margin-bottom:12px;">B</div>
+        <div class="page-title">Choose Your Business Type</div>
+        <p class="text-muted" style="margin-top:6px;">This helps us customize BizFlow for your industry</p>
+      </div>
+      <div class="niche-grid">
+        ${NICHES.map(n => `
+          <div class="niche-card" data-niche="${n.id}" onclick="selectNiche('${n.id}')">
+            <div class="niche-icon">${n.emoji}</div>
+            <div class="niche-name">${n.name}</div>
+          </div>
+        `).join('')}
+      </div>
+      <div style="text-align:center;margin-top:20px;">
+        <button class="btn btn-primary btn-lg" id="niche-confirm" onclick="confirmNiche()" disabled>Continue →</button>
+      </div>
+    </div>
+  </div>`;
+}
+
+let selectedNiche = null;
+function selectNiche(id) {
+  selectedNiche = id;
+  document.querySelectorAll('.niche-card').forEach(c => c.classList.toggle('selected', c.dataset.niche === id));
+  document.getElementById('niche-confirm').removeAttribute('disabled');
+}
+
+async function confirmNiche() {
+  if (!selectedNiche) return;
+  await sb.from('profiles').upsert({ id: state.user.id, niche: selectedNiche });
+  state.profile = { ...state.profile, niche: selectedNiche };
+  toast('Business type saved!', 'success');
+  render();
+}
+
+function bindNicheEvents() {}
+
+// ── SIDEBAR ────────────────────────────────────────────────────────
+function renderSidebar() {
+  const niche = NICHES.find(n => n.id === state.profile?.niche);
+  const pages = [
+    { id: 'dashboard', icon: svgDashboard(), label: t('dashboard') },
+    { id: 'orders', icon: svgOrders(), label: t('orders') },
+    { id: 'inventory', icon: svgInventory(), label: t('inventory') },
+    { id: 'payments', icon: svgPayments(), label: t('payments') },
+    { id: 'suppliers', icon: svgSuppliers(), label: t('suppliers') },
+    { id: 'community', icon: svgCommunity(), label: t('community') },
+  ];
+  return `
+  <aside class="sidebar ${state.sidebarOpen ? 'open' : ''}">
+    <div class="sidebar-logo">
+      <div class="logo-mark">B</div>
+      <span class="logo-text">Biz<span>Flow</span></span>
+      ${niche ? `<span style="font-size:20px;margin-left:auto;">${niche.emoji}</span>` : ''}
+    </div>
+    <nav class="sidebar-nav">
+      <div class="nav-section-label">Main</div>
+      ${pages.map(p => `
+        <button class="nav-item ${state.page === p.id ? 'active' : ''}" onclick="navigate('${p.id}')">
+          <span class="nav-icon">${p.icon}</span>
+          ${p.label}
+        </button>
+      `).join('')}
+      <div class="nav-section-label" style="margin-top:8px;">Business</div>
+      <button class="nav-item ${state.page === 'gov-reg' ? 'active' : ''}" onclick="navigate('gov-reg')">
+        <span class="nav-icon">${svgGov()}</span>
+        ${t('govReg')}
+      </button>
+      <button class="nav-item ${state.page === 'location' ? 'active' : ''}" onclick="navigate('location')">
+        <span class="nav-icon">${svgLocation()}</span>
+        ${t('addLocation')}
+      </button>
+    </nav>
+    <div class="sidebar-footer">
+      <button class="nav-item ${state.page === 'settings' ? 'active' : ''}" onclick="navigate('settings')">
+        <span class="nav-icon">${svgSettings()}</span>
+        ${t('settings')}
+      </button>
+      <button class="nav-item" onclick="doLogout()" style="color:var(--danger);">
+        <span class="nav-icon">${svgLogout()}</span>
+        ${t('logout')}
+      </button>
+    </div>
+  </aside>`;
+}
+
+// ── TOPBAR ─────────────────────────────────────────────────────────
+function renderTopbar() {
+  const pageTitles = {
+    dashboard: t('dashboard'), orders: t('orders'), inventory: t('inventory'),
+    payments: t('payments'), suppliers: t('suppliers'), community: t('community'),
+    settings: t('settings'), 'gov-reg': t('govReg'), location: t('addLocation')
+  };
+  const initials = (state.profile?.owner_name || state.profile?.email || 'U').charAt(0).toUpperCase();
+  return `
+  <header class="topbar">
+    <button class="icon-btn" id="mobile-menu-btn" onclick="toggleSidebar()" style="display:none;">
+      ${svgMenu()}
+    </button>
+    <h1 class="topbar-title">${pageTitles[state.page] || state.page}</h1>
+    <div class="topbar-actions">
+      <div class="lang-switcher">
+        <button class="icon-btn" onclick="toggleLangDrop()" title="Language">
+          <span style="font-size:11px;font-weight:700;">${state.lang.toUpperCase()}</span>
+        </button>
+        <div class="lang-dropdown ${state.langDropOpen ? '' : 'hidden'}">
+          ${Object.entries(LANGS).map(([code, name]) => `
+            <div class="lang-opt ${state.lang === code ? 'active' : ''}" onclick="setLang('${code}')">${name}</div>
+          `).join('')}
+        </div>
+      </div>
+      <button class="icon-btn" onclick="toggleTheme()" title="Toggle theme">
+        ${state.theme === 'light' ? svgMoon() : svgSun()}
+      </button>
+      <div class="avatar" onclick="navigate('settings')">${initials}</div>
+    </div>
+  </header>
+  <style>@media(max-width:768px){#mobile-menu-btn{display:grid!important;}}</style>`;
+}
+
+// ── PAGE ROUTER ────────────────────────────────────────────────────
+function renderPage() {
+  switch (state.page) {
+    case 'dashboard': return renderDashboard();
+    case 'orders': return renderOrders();
+    case 'inventory': return renderInventory();
+    case 'payments': return renderPayments();
+    case 'suppliers': return renderSuppliers();
+    case 'community': return renderCommunity();
+    case 'gov-reg': return renderGovReg();
+    case 'location': return renderLocation();
+    case 'settings': return renderSettings();
+    default: return renderDashboard();
+  }
+}
+
+// ── DASHBOARD ──────────────────────────────────────────────────────
+function renderDashboard() {
+  const pending = state.orders.filter(o => o.status === 'pending').length;
+  const revenue = state.orders.filter(o => o.status === 'confirmed' || o.status === 'delivered')
+    .reduce((s, o) => s + (o.total || 0), 0);
+  const lowStock = state.inventory.filter(i => i.quantity <= (i.min_stock || 5)).length;
+  const overdue = state.payments.filter(p => p.status === 'overdue' || (p.status !== 'paid' && new Date(p.due_date) < new Date())).length;
+
+  const incomingAmt = state.payments.filter(p => p.type === 'receivable' && p.status !== 'paid').reduce((s, p) => s + (p.amount || 0), 0);
+  const outgoingAmt = state.payments.filter(p => p.type === 'payable' && p.status !== 'paid').reduce((s, p) => s + (p.amount || 0), 0);
+  const netPos = incomingAmt - outgoingAmt;
+
+  return `
+  <div>
+    <div class="page-header">
+      <div>
+        <div class="page-title">${t('welcome')}, ${state.profile?.owner_name || 'Owner'} 👋</div>
+        <div class="page-subtitle">${t('today')} — ${new Date().toLocaleDateString('en-IN', { weekday: 'long', day: 'numeric', month: 'long' })}</div>
+      </div>
+      <button class="btn btn-primary" onclick="openNewOrderModal()">+ ${t('newOrder')}</button>
+    </div>
+
+    <div class="stats-grid">
+      <div class="stat-card">
+        <div class="stat-label">${t('totalRevenue')}</div>
+        <div class="stat-value">₹${(revenue/1000).toFixed(1)}K</div>
+        <div class="stat-sub">All time confirmed</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">${t('pendingOrders')}</div>
+        <div class="stat-value">${pending}</div>
+        <div class="stat-sub">Awaiting confirmation</div>
+        ${pending > 0 ? '<div class="stat-badge stat-down">⚠ Action needed</div>' : '<div class="stat-badge stat-up">✓ All clear</div>'}
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">${t('lowStock')}</div>
+        <div class="stat-value">${lowStock}</div>
+        <div class="stat-sub">Products below threshold</div>
+        ${lowStock > 0 ? '<div class="stat-badge stat-down">⚠ Reorder needed</div>' : '<div class="stat-badge stat-up">✓ Stock healthy</div>'}
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">${t('overduePayments')}</div>
+        <div class="stat-value">${overdue}</div>
+        <div class="stat-sub">Payments overdue</div>
+        ${overdue > 0 ? '<div class="stat-badge stat-down">⚠ Follow up</div>' : '<div class="stat-badge stat-up">✓ On track</div>'}
+      </div>
+    </div>
+
+    <div class="flow-widgets">
+      <div class="flow-card flow-in">
+        <div class="flow-label">🟢 ${t('incomingMoney')}</div>
+        <div class="flow-value">₹${fmt(incomingAmt)}</div>
+        <div class="text-sm text-muted" style="margin-top:6px;">From ${state.payments.filter(p => p.type === 'receivable' && p.status !== 'paid').length} invoices</div>
+      </div>
+      <div class="flow-card flow-out">
+        <div class="flow-label">🔴 ${t('outgoingMoney')}</div>
+        <div class="flow-value">₹${fmt(outgoingAmt)}</div>
+        <div class="text-sm text-muted" style="margin-top:6px;">To ${state.suppliers.length} vendors</div>
+      </div>
+      <div class="flow-card flow-net">
+        <div class="flow-label">💰 ${t('netPosition')}</div>
+        <div class="flow-value" style="color:${netPos >= 0 ? 'var(--success)' : 'var(--danger)'}">₹${fmt(Math.abs(netPos))}</div>
+        <div class="text-sm text-muted" style="margin-top:6px;">${netPos >= 0 ? 'Healthy cashflow' : 'Attention needed'}</div>
+      </div>
+    </div>
+
+    <!-- Recent Orders -->
+    <div class="card mb-4">
+      <div class="flex items-center justify-between mb-4">
+        <h3 style="font-family:var(--font-display);font-weight:700;">Recent Orders</h3>
+        <button class="btn btn-outline btn-sm" onclick="navigate('orders')">View All →</button>
+      </div>
+      ${state.orders.length === 0 ? `
+        <div style="text-align:center;padding:32px;color:var(--text3);">
+          <div style="font-size:40px;margin-bottom:12px;">📦</div>
+          <div>No orders yet. Create your first order!</div>
+          <button class="btn btn-primary" style="margin-top:16px;" onclick="openNewOrderModal()">+ New Order</button>
+        </div>
+      ` : `
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>${t('customer')}</th><th>${t('amount')}</th><th>${t('status')}</th><th>${t('date')}</th><th></th></tr></thead>
+            <tbody>
+              ${state.orders.slice(0, 5).map(o => `
+                <tr>
+                  <td><strong>${o.customer_name}</strong><br><span class="text-sm text-muted">${o.product || ''}</span></td>
+                  <td><strong>₹${fmt(o.total)}</strong></td>
+                  <td>${statusBadge(o.status)}</td>
+                  <td class="text-sm text-muted">${fmtDate(o.created_at)}</td>
+                  <td>
+                    <button class="btn btn-wa btn-sm" onclick="sendOrderWA('${o.id}')">
+                      ${svgWA()} WA
+                    </button>
+                  </td>
+                </tr>
+              `).join('')}
+            </tbody>
+          </table>
+        </div>
+      `}
+    </div>
+  </div>`;
+}
+
+// ── ORDERS ─────────────────────────────────────────────────────────
+function renderOrders() {
+  return `
+  <div>
+    <div class="page-header">
+      <div>
+        <div class="page-title">${t('orders')}</div>
+        <div class="page-subtitle">Manage all customer orders</div>
+      </div>
+      <div class="flex gap-2">
+        <div class="search-wrap">
+          ${svgSearch()}
+          <input class="search-input" placeholder="${t('search')}" oninput="filterTable(this,'orders-table')"/>
+        </div>
+        <button class="btn btn-primary" onclick="openNewOrderModal()">+ ${t('newOrder')}</button>
+      </div>
+    </div>
+
+    ${state.orders.length === 0 ? `
+      <div class="card" style="text-align:center;padding:48px;">
+        <div style="font-size:56px;margin-bottom:16px;">📦</div>
+        <div style="font-size:18px;font-weight:600;margin-bottom:8px;">No orders yet</div>
+        <p class="text-muted">Start capturing orders from WhatsApp or create manually</p>
+        <button class="btn btn-primary" style="margin-top:20px;" onclick="openNewOrderModal()">+ Create First Order</button>
+      </div>
+    ` : `
+      <div class="card">
+        <div class="table-wrap">
+          <table id="orders-table">
+            <thead><tr><th>#</th><th>${t('customer')}</th><th>${t('product')}</th><th>${t('total')}</th><th>${t('status')}</th><th>${t('date')}</th><th>${t('actions')}</th></tr></thead>
+            <tbody>
+              ${state.orders.map((o, i) => `
+                <tr>
+                  <td class="text-muted text-sm">#${String(i+1).padStart(3,'0')}</td>
+                  <td>
+                    <strong>${o.customer_name}</strong><br>
+                    <span class="text-sm text-muted">${o.customer_phone || ''}</span>
+                  </td>
+                  <td>${o.product || '—'}<br><span class="text-sm text-muted">Qty: ${o.quantity || 1}</span></td>
+                  <td><strong>₹${fmt(o.total)}</strong></td>
+                  <td>${statusBadge(o.status)}</td>
+                  <td class="text-sm text-muted">${fmtDate(o.created_at)}</td>
+                  <td>
+                    <div class="flex gap-2">
+                      <button class="btn btn-wa btn-sm" onclick="sendOrderWA('${o.id}')">WA</button>
+                      <button class="btn btn-outline btn-sm" onclick="generateInvoice('${o.id}')">GST Invoice</button>
+                      <button class="btn btn-outline btn-sm" onclick="editOrder('${o.id}')">Edit</button>
+                    </div>
+                  </td>
+                </tr>
+              `).join('')}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    `}
+  </div>`;
+}
+
+// ── INVENTORY ──────────────────────────────────────────────────────
+function renderInventory() {
+  return `
+  <div>
+    <div class="page-header">
+      <div>
+        <div class="page-title">${t('inventory')}</div>
+        <div class="page-subtitle">Track stock levels in real-time</div>
+      </div>
+      <div class="flex gap-2">
+        <div class="search-wrap">
+          ${svgSearch()}
+          <input class="search-input" placeholder="${t('search')}" oninput="filterTable(this,'inv-table')"/>
+        </div>
+        <button class="btn btn-primary" onclick="openNewProductModal()">+ ${t('newProduct')}</button>
+      </div>
+    </div>
+
+    ${state.inventory.length === 0 ? `
+      <div class="card" style="text-align:center;padding:48px;">
+        <div style="font-size:56px;margin-bottom:16px;">📦</div>
+        <div style="font-size:18px;font-weight:600;margin-bottom:8px;">No products yet</div>
+        <p class="text-muted">Add your products to start tracking inventory</p>
+        <button class="btn btn-primary" style="margin-top:20px;" onclick="openNewProductModal()">+ Add First Product</button>
+      </div>
+    ` : `
+      <div class="card">
+        <div class="table-wrap">
+          <table id="inv-table">
+            <thead><tr><th>${t('product')}</th><th>SKU</th><th>Unit</th><th>Stock</th><th>Min Stock</th><th>Price</th><th>Status</th><th>${t('actions')}</th></tr></thead>
+            <tbody>
+              ${state.inventory.map(item => {
+                const pct = Math.min(100, Math.round((item.quantity / Math.max(item.max_stock || 100, 1)) * 100));
+                const stockStatus = item.quantity <= 0 ? 'danger' : item.quantity <= (item.min_stock || 5) ? 'warning' : 'success';
+                return `
+                  <tr>
+                    <td><strong>${item.name}</strong><br><span class="text-sm text-muted">${item.category || ''}</span></td>
+                    <td class="text-sm text-muted">${item.sku || '—'}</td>
+                    <td>${item.unit || 'pcs'}</td>
+                    <td>
+                      <strong>${item.quantity}</strong>
+                      <div class="progress-bar" style="margin-top:4px;width:80px;">
+                        <div class="progress-fill" style="width:${pct}%;background:${stockStatus === 'success' ? 'var(--success)' : stockStatus === 'warning' ? 'var(--warning)' : 'var(--danger)'};"></div>
+                      </div>
+                    </td>
+                    <td>${item.min_stock || 5}</td>
+                    <td>₹${fmt(item.price || 0)}</td>
+                    <td>${stockStatus === 'danger' ? '<span class="badge badge-danger">Out of Stock</span>' : stockStatus === 'warning' ? '<span class="badge badge-warning">Low Stock</span>' : '<span class="badge badge-success">In Stock</span>'}</td>
+                    <td>
+                      <div class="flex gap-2">
+                        <button class="btn btn-outline btn-sm" onclick="editProduct('${item.id}')">Edit</button>
+                        ${stockStatus === 'warning' ? `<button class="btn btn-wa btn-sm" onclick="sendRestockWA('${item.id}')">Reorder WA</button>` : ''}
+                      </div>
+                    </td>
+                  </tr>
+                `;
+              }).join('')}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    `}
+  </div>`;
+}
+
+// ── PAYMENTS ───────────────────────────────────────────────────────
+function renderPayments() {
+  return `
+  <div>
+    <div class="page-header">
+      <div>
+        <div class="page-title">${t('payments')}</div>
+        <div class="page-subtitle">Track receivables & payables</div>
+      </div>
+      <button class="btn btn-primary" onclick="openNewPaymentModal()">+ ${t('newPayment')}</button>
+    </div>
+
+    <div class="tabs">
+      <button class="tab active" onclick="filterPayments('all', this)">All</button>
+      <button class="tab" onclick="filterPayments('receivable', this)">Receivable</button>
+      <button class="tab" onclick="filterPayments('payable', this)">Payable</button>
+      <button class="tab" onclick="filterPayments('overdue', this)">Overdue</button>
+    </div>
+
+    ${state.payments.length === 0 ? `
+      <div class="card" style="text-align:center;padding:48px;">
+        <div style="font-size:56px;margin-bottom:16px;">💳</div>
+        <div style="font-size:18px;font-weight:600;margin-bottom:8px;">No payments tracked</div>
+        <p class="text-muted">Start tracking your receivables and payables</p>
+        <button class="btn btn-primary" style="margin-top:20px;" onclick="openNewPaymentModal()">+ Add Payment</button>
+      </div>
+    ` : `
+      <div class="card">
+        <div class="table-wrap">
+          <table id="pay-table">
+            <thead><tr><th>Party</th><th>Type</th><th>Amount</th><th>Due Date</th><th>Status</th><th>Actions</th></tr></thead>
+            <tbody>
+              ${state.payments.map(p => {
+                const isOverdue = p.status !== 'paid' && new Date(p.due_date) < new Date();
+                const days = Math.round((new Date() - new Date(p.due_date)) / 86400000);
+                return `
+                  <tr>
+                    <td><strong>${p.party_name}</strong><br><span class="text-sm text-muted">${p.party_phone || ''}</span></td>
+                    <td><span class="badge ${p.type === 'receivable' ? 'badge-success' : 'badge-info'}">${p.type || 'receivable'}</span></td>
+                    <td><strong>₹${fmt(p.amount)}</strong></td>
+                    <td class="${isOverdue ? 'text-danger' : ''}">${fmtDate(p.due_date)} ${isOverdue ? `<br><span class="text-xs">Overdue ${days}d</span>` : ''}</td>
+                    <td>${p.status === 'paid' ? '<span class="badge badge-success">Paid</span>' : isOverdue ? '<span class="badge badge-danger">Overdue</span>' : '<span class="badge badge-warning">Pending</span>'}</td>
+                    <td>
+                      <div class="flex gap-2">
+                        ${p.status !== 'paid' ? `<button class="btn btn-wa btn-sm" onclick="sendPaymentWA('${p.id}')">WA Reminder</button>` : ''}
+                        ${p.status !== 'paid' ? `<button class="btn btn-primary btn-sm" onclick="markPaid('${p.id}')">Mark Paid</button>` : ''}
+                      </div>
+                    </td>
+                  </tr>
+                `;
+              }).join('')}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    `}
+  </div>`;
+}
+
+// ── SUPPLIERS ──────────────────────────────────────────────────────
+function renderSuppliers() {
+  return `
+  <div>
+    <div class="page-header">
+      <div>
+        <div class="page-title">${t('suppliers')}</div>
+        <div class="page-subtitle">Manage vendor ledger & balances</div>
+      </div>
+      <div class="flex gap-2">
+        <div class="search-wrap">
+          ${svgSearch()}
+          <input class="search-input" placeholder="${t('search')}" oninput="filterTable(this,'sup-table')"/>
+        </div>
+        <button class="btn btn-primary" onclick="openNewSupplierModal()">+ Add Supplier</button>
+      </div>
+    </div>
+
+    ${state.suppliers.length === 0 ? `
+      <div class="card" style="text-align:center;padding:48px;">
+        <div style="font-size:56px;margin-bottom:16px;">🏭</div>
+        <div style="font-size:18px;font-weight:600;margin-bottom:8px;">No suppliers added</div>
+        <p class="text-muted">Add your suppliers to track purchases and balances</p>
+        <button class="btn btn-primary" style="margin-top:20px;" onclick="openNewSupplierModal()">+ Add Supplier</button>
+      </div>
+    ` : `
+      <div class="card">
+        <div class="table-wrap">
+          <table id="sup-table">
+            <thead><tr><th>Supplier</th><th>Contact</th><th>Category</th><th>Outstanding</th><th>Last Order</th><th>Actions</th></tr></thead>
+            <tbody>
+              ${state.suppliers.map(s => `
+                <tr>
+                  <td><strong>${s.name}</strong></td>
+                  <td>${s.phone || '—'}<br><span class="text-sm text-muted">${s.email || ''}</span></td>
+                  <td>${s.category || '—'}</td>
+                  <td class="${(s.outstanding || 0) > 0 ? 'text-danger' : 'text-success'}"><strong>₹${fmt(s.outstanding || 0)}</strong></td>
+                  <td class="text-sm text-muted">${fmtDate(s.last_order_date)}</td>
+                  <td>
+                    <div class="flex gap-2">
+                      <button class="btn btn-wa btn-sm" onclick="callSupplierWA('${s.id}')">WhatsApp</button>
+                      <button class="btn btn-outline btn-sm" onclick="editSupplier('${s.id}')">Edit</button>
+                    </div>
+                  </td>
+                </tr>
+              `).join('')}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    `}
+  </div>`;
+}
+
+// ── COMMUNITY ──────────────────────────────────────────────────────
+function renderCommunity() {
+  const niche = NICHES.find(n => n.id === state.profile?.niche);
+  return `
+  <div>
+    <div class="page-header">
+      <div>
+        <div class="page-title">${t('community')} ${niche?.emoji || ''}</div>
+        <div class="page-subtitle">${niche?.name || ''} traders network — India & Beyond</div>
+      </div>
+      <button class="btn btn-primary" onclick="openNewPostModal()">+ New Post</button>
+    </div>
+
+    <div class="tabs">
+      <button class="tab active">All Posts</button>
+      <button class="tab">Market Updates</button>
+      <button class="tab">Questions</button>
+      <button class="tab">Deals</button>
+    </div>
+
+    <div style="display:grid;gap:16px;">
+      ${state.community.length === 0 ? `
+        <div class="card" style="text-align:center;padding:48px;">
+          <div style="font-size:56px;margin-bottom:16px;">🌐</div>
+          <div style="font-size:18px;font-weight:600;margin-bottom:8px;">Be the first to post!</div>
+          <p class="text-muted">Connect with traders in your niche across India</p>
+          <button class="btn btn-primary" style="margin-top:20px;" onclick="openNewPostModal()">+ Share Update</button>
+        </div>
+      ` : state.community.map(post => `
+        <div class="card">
+          <div class="flex items-center gap-3 mb-4">
+            <div class="avatar" style="width:40px;height:40px;font-size:16px;">${(post.profiles?.business_name || 'U').charAt(0)}</div>
+            <div>
+              <div style="font-weight:600;">${post.profiles?.business_name || 'Business'}</div>
+              <div class="text-sm text-muted">${fmtDate(post.created_at)} • ${post.post_type || 'General'}</div>
+            </div>
+            <span class="badge badge-info" style="margin-left:auto;">${post.profiles?.niche || 'general'}</span>
+          </div>
+          <p style="margin-bottom:12px;">${post.content}</p>
+          <div class="flex gap-2">
+            <button class="btn btn-outline btn-sm" onclick="upvotePost('${post.id}')">👍 ${post.upvotes || 0}</button>
+            <button class="btn btn-outline btn-sm">💬 Reply</button>
+          </div>
+        </div>
+      `).join('')}
+    </div>
+  </div>`;
+}
+
+// ── GOV REGISTRATION ───────────────────────────────────────────────
+function renderGovReg() {
+  const steps = [
+    { num: 1, done: !!state.profile?.udyam_number, title: 'Udyam Registration (MSME)', desc: 'Free online registration for MSMEs. Get Udyam Certificate for bank loans, subsidies, and tenders.', link: 'https://udyamregistration.gov.in', btn: 'Register on Udyam Portal' },
+    { num: 2, done: !!state.profile?.gstin, title: 'GST Registration', desc: 'Required if turnover > ₹40L (goods) / ₹20L (services). Free on GST portal.', link: 'https://www.gst.gov.in', btn: 'Register on GST Portal' },
+    { num: 3, done: !!state.profile?.pan, title: 'PAN Card for Business', desc: 'Apply for PAN in your business name. Required for all financial transactions.', link: 'https://www.incometax.gov.in', btn: 'Apply on Income Tax Portal' },
+    { num: 4, done: false, title: 'Trade License (Local Body)', desc: 'Obtain trade license from your municipal corporation or gram panchayat.', link: 'https://services.india.gov.in', btn: 'Check Local Requirements' },
+    { num: 5, done: false, title: 'FSSAI License (Food businesses)', desc: 'Required for all food-related businesses. Apply online on the FSSAI portal.', link: 'https://foscos.fssai.gov.in', btn: 'Apply on FSSAI Portal' },
+    { num: 6, done: false, title: 'Shop & Establishment Act', desc: 'Register under state-specific Shop & Establishment Act within 30 days of opening.', link: 'https://shramsuvidha.gov.in', btn: 'Visit Labour Portal' },
+  ];
+
+  return `
+  <div>
+    <div class="page-header">
+      <div>
+        <div class="page-title">🏛️ ${t('govReg')}</div>
+        <div class="page-subtitle">Step-by-step guide to register your business legally in India</div>
+      </div>
+    </div>
+
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:24px;">
+      <div>
+        <div class="card mb-4">
+          <h3 style="font-family:var(--font-display);font-weight:700;margin-bottom:16px;">Registration Checklist</h3>
+          <div class="steps-list">
+            ${steps.map(s => `
+              <div class="step-item ${s.done ? 'step-done' : ''}">
+                <div class="step-num">${s.done ? '✓' : s.num}</div>
+                <div class="step-content">
+                  <div class="step-title">${s.title}</div>
+                  <div class="step-desc">${s.desc}</div>
+                  <a href="${s.link}" target="_blank" class="btn btn-outline btn-sm" style="margin-top:10px;text-decoration:none;">
+                    ${s.btn} ↗
+                  </a>
+                </div>
+              </div>
+            `).join('')}
+          </div>
+        </div>
+      </div>
+
+      <div>
+        <div class="card mb-4">
+          <h3 style="font-family:var(--font-display);font-weight:700;margin-bottom:16px;">Update Your Registration Numbers</h3>
+          <div class="form-group">
+            <label class="form-label">Udyam Registration Number</label>
+            <input id="udyam" class="form-input" placeholder="UDYAM-XX-00-0000000" value="${state.profile?.udyam_number || ''}"/>
+          </div>
+          <div class="form-group">
+            <label class="form-label">GSTIN</label>
+            <input id="gstin" class="form-input" placeholder="22AAAAA0000A1Z5" value="${state.profile?.gstin || ''}"/>
+          </div>
+          <div class="form-group">
+            <label class="form-label">PAN Number</label>
+            <input id="pan" class="form-input" placeholder="AAAAA0000A" value="${state.profile?.pan || ''}"/>
+          </div>
+          <div class="form-group">
+            <label class="form-label">CIN (if Private Limited)</label>
+            <input id="cin" class="form-input" placeholder="U00000XX2020PTC000000" value="${state.profile?.cin || ''}"/>
+          </div>
+          <button class="btn btn-primary" onclick="saveRegNumbers()">💾 Save Numbers</button>
+        </div>
+
+        <div class="card" style="background:linear-gradient(135deg,var(--primary),var(--primary-light));color:white;border:none;">
+          <h4 style="font-weight:700;margin-bottom:8px;">💡 Pro Tip</h4>
+          <p style="font-size:14px;opacity:0.9;">Udyam Registration is FREE and takes only 5 minutes. You get access to government subsidies, priority bank loans at lower interest rates, and protection against delayed payments from large companies.</p>
+          <a href="https://udyamregistration.gov.in" target="_blank" class="btn" style="margin-top:14px;background:white;color:var(--primary);">Register Now — It's Free ↗</a>
+        </div>
+      </div>
+    </div>
+  </div>`;
+}
+
+// ── LOCATION ───────────────────────────────────────────────────────
+function renderLocation() {
+  const lat = state.profile?.lat || 19.0760;
+  const lng = state.profile?.lng || 72.8777;
+  const bizName = encodeURIComponent(state.profile?.business_name || 'My Business');
+  const bizAddress = encodeURIComponent(state.profile?.address || '');
+
+  return `
+  <div>
+    <div class="page-header">
+      <div>
+        <div class="page-title">📍 ${t('addLocation')}</div>
+        <div class="page-subtitle">Put your business on Google Maps so customers can find you</div>
+      </div>
+    </div>
+
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:24px;">
+      <div>
+        <div class="card mb-4">
+          <h3 style="font-family:var(--font-display);font-weight:700;margin-bottom:16px;">Your Business Location</h3>
+          <div class="form-group">
+            <label class="form-label">Business Name (as on Google)</label>
+            <input id="loc-name" class="form-input" value="${state.profile?.business_name || ''}" placeholder="Your Business Name"/>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Full Address</label>
+            <textarea id="loc-addr" class="form-textarea" placeholder="Shop No, Street, Area, City, PIN">${state.profile?.address || ''}</textarea>
+          </div>
+          <div class="form-grid-2">
+            <div class="form-group">
+              <label class="form-label">Latitude</label>
+              <input id="loc-lat" class="form-input" type="number" step="any" value="${lat}" placeholder="19.0760"/>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Longitude</label>
+              <input id="loc-lng" class="form-input" type="number" step="any" value="${lng}" placeholder="72.8777"/>
+            </div>
+          </div>
+          <div class="flex gap-2">
+            <button class="btn btn-primary" onclick="saveLocation()">📍 Save Location</button>
+            <button class="btn btn-outline" onclick="detectLocation()">🎯 Auto-detect</button>
+          </div>
+        </div>
+
+        <div class="card">
+          <h3 style="font-family:var(--font-display);font-weight:700;margin-bottom:16px;">List on Google Business</h3>
+          <div class="steps-list">
+            <div class="step-item">
+              <div class="step-num">1</div>
+              <div class="step-content">
+                <div class="step-title">Go to Google Business Profile</div>
+                <div class="step-desc">Visit business.google.com and sign in with your Google account</div>
+              </div>
+            </div>
+            <div class="step-item">
+              <div class="step-num">2</div>
+              <div class="step-content">
+                <div class="step-title">Add Your Business</div>
+                <div class="step-desc">Enter business name, category, and location details</div>
+              </div>
+            </div>
+            <div class="step-item">
+              <div class="step-num">3</div>
+              <div class="step-content">
+                <div class="step-title">Verify by Postcard or Phone</div>
+                <div class="step-desc">Google will send a verification code to confirm your address</div>
+              </div>
+            </div>
+            <div class="step-item">
+              <div class="step-num">4</div>
+              <div class="step-content">
+                <div class="step-title">Add Photos & Hours</div>
+                <div class="step-desc">Businesses with photos get 42% more direction requests</div>
+              </div>
+            </div>
+          </div>
+          <a href="https://business.google.com" target="_blank" class="btn btn-primary" style="margin-top:16px;text-decoration:none;display:inline-flex;">
+            Open Google Business Profile ↗
+          </a>
+        </div>
+      </div>
+
+      <div>
+        <div class="card">
+          <h3 style="font-family:var(--font-display);font-weight:700;margin-bottom:16px;">Map Preview</h3>
+          <div class="map-container">
+            <iframe
+              src="https://maps.google.com/maps?q=${lat},${lng}&zoom=15&output=embed"
+              width="100%" height="100%"
+              style="border:0;"
+              allowfullscreen=""
+              loading="lazy"
+              referrerpolicy="no-referrer-when-downgrade">
+            </iframe>
+          </div>
+          <div class="flex gap-2" style="margin-top:12px;">
+            <a href="https://www.google.com/maps/search/${bizName}+${bizAddress}" target="_blank" class="btn btn-outline btn-sm" style="text-decoration:none;">
+              🔍 Search on Google Maps
+            </a>
+            <a href="https://maps.google.com/?q=${lat},${lng}" target="_blank" class="btn btn-outline btn-sm" style="text-decoration:none;">
+              📍 View Full Map
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>`;
+}
+
+// ── SETTINGS ───────────────────────────────────────────────────────
+function renderSettings() {
+  const p = state.profile || {};
+  return `
+  <div>
+    <div class="page-header">
+      <div>
+        <div class="page-title">⚙️ ${t('settings')}</div>
+        <div class="page-subtitle">Business profile & app preferences</div>
+      </div>
+    </div>
+
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:24px;">
+      <!-- Business Profile -->
+      <div>
+        <div class="card mb-4">
+          <h3 style="font-family:var(--font-display);font-weight:700;margin-bottom:20px;">🏢 Business Profile</h3>
+          <div class="form-group">
+            <label class="form-label">${t('businessName')}</label>
+            <input id="s-bizname" class="form-input" value="${p.business_name || ''}" placeholder="Your Business Name"/>
+          </div>
+          <div class="form-group">
+            <label class="form-label">${t('ownerName')}</label>
+            <input id="s-owner" class="form-input" value="${p.owner_name || ''}" placeholder="Owner / Proprietor Name"/>
+          </div>
+          <div class="form-grid-2">
+            <div class="form-group">
+              <label class="form-label">${t('phone')}</label>
+              <input id="s-phone" class="form-input" type="tel" value="${p.phone || ''}" placeholder="+91 9876543210"/>
+            </div>
+            <div class="form-group">
+              <label class="form-label">${t('email')}</label>
+              <input id="s-email" class="form-input" type="email" value="${p.email || state.user?.email || ''}" placeholder="owner@business.com"/>
+            </div>
+          </div>
+          <div class="form-group">
+            <label class="form-label">${t('address')}</label>
+            <textarea id="s-addr" class="form-textarea">${p.address || ''}</textarea>
+          </div>
+          <div class="form-grid-2">
+            <div class="form-group">
+              <label class="form-label">City</label>
+              <input id="s-city" class="form-input" value="${p.city || ''}" placeholder="Mumbai"/>
+            </div>
+            <div class="form-group">
+              <label class="form-label">State</label>
+              <select id="s-state" class="form-select">
+                ${['Andhra Pradesh','Arunachal Pradesh','Assam','Bihar','Chhattisgarh','Goa','Gujarat','Haryana','Himachal Pradesh','Jharkhand','Karnataka','Kerala','Madhya Pradesh','Maharashtra','Manipur','Meghalaya','Mizoram','Nagaland','Odisha','Punjab','Rajasthan','Sikkim','Tamil Nadu','Telangana','Tripura','Uttar Pradesh','Uttarakhand','West Bengal','Delhi','Jammu & Kashmir'].map(s => `<option ${p.state === s ? 'selected' : ''}>${s}</option>`).join('')}
+                </select>
+            </div>
+          </div>
+          <div class="form-grid-2">
+            <div class="form-group">
+              <label class="form-label">PIN Code</label>
+              <input id="s-pin" class="form-input" value="${p.pin || ''}" placeholder="400001"/>
+            </div>
+            <div class="form-group">
+              <label class="form-label">WhatsApp Number</label>
+              <input id="s-wa" class="form-input" type="tel" value="${p.whatsapp || ''}" placeholder="+91 9876543210"/>
+            </div>
+          </div>
+          <button class="btn btn-primary" onclick="saveProfile()">💾 Save Profile</button>
+        </div>
+
+        <!-- GST & Tax -->
+        <div class="card">
+          <h3 style="font-family:var(--font-display);font-weight:700;margin-bottom:20px;">📄 Tax & Legal Info</h3>
+          <div class="form-grid-2">
+            <div class="form-group">
+              <label class="form-label">GSTIN</label>
+              <input id="s-gstin" class="form-input" value="${p.gstin || ''}" placeholder="22AAAAA0000A1Z5"/>
+            </div>
+            <div class="form-group">
+              <label class="form-label">PAN Number</label>
+              <input id="s-pan" class="form-input" value="${p.pan || ''}" placeholder="AAAAA0000A"/>
+            </div>
+          </div>
+          <div class="form-grid-2">
+            <div class="form-group">
+              <label class="form-label">Bank Account</label>
+              <input id="s-bank" class="form-input" value="${p.bank_account || ''}" placeholder="Account Number"/>
+            </div>
+            <div class="form-group">
+              <label class="form-label">IFSC Code</label>
+              <input id="s-ifsc" class="form-input" value="${p.ifsc || ''}" placeholder="HDFC0001234"/>
+            </div>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Bank Name</label>
+            <input id="s-bankname" class="form-input" value="${p.bank_name || ''}" placeholder="HDFC Bank"/>
+          </div>
+          <button class="btn btn-primary" onclick="saveTaxInfo()">💾 Save Tax Info</button>
+        </div>
+      </div>
+
+      <!-- App Preferences -->
+      <div>
+        <div class="card mb-4">
+          <h3 style="font-family:var(--font-display);font-weight:700;margin-bottom:20px;">🎨 App Preferences</h3>
+
+          <div class="form-group">
+            <label class="form-label">Theme</label>
+            <div class="flex gap-2">
+              <button class="btn ${state.theme === 'light' ? 'btn-primary' : 'btn-outline'}" onclick="setTheme('light')">☀️ Light</button>
+              <button class="btn ${state.theme === 'dark' ? 'btn-primary' : 'btn-outline'}" onclick="setTheme('dark')">🌙 Dark</button>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Language</label>
+            <div class="lang-grid">
+              ${Object.entries(LANGS).map(([code, name]) => `
+                <div class="lang-chip ${state.lang === code ? 'selected' : ''}" onclick="setLang('${code}')">${name}</div>
+              `).join('')}
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Business Type (Niche)</label>
+            <div class="niche-grid" style="grid-template-columns:repeat(3,1fr);">
+              ${NICHES.map(n => `
+                <div class="niche-card ${state.profile?.niche === n.id ? 'selected' : ''}" onclick="changeNiche('${n.id}')">
+                  <div class="niche-icon">${n.emoji}</div>
+                  <div class="niche-name" style="font-size:11px;">${n.name.split('/')[0]}</div>
+                </div>
+              `).join('')}
+            </div>
+          </div>
+        </div>
+
+        <div class="card mb-4">
+          <h3 style="font-family:var(--font-display);font-weight:700;margin-bottom:20px;">📱 WhatsApp Setup</h3>
+          <p class="text-muted text-sm" style="margin-bottom:16px;">Configure WhatsApp for auto-notifications and customer messaging</p>
+          <div class="form-group">
+            <label class="form-label">Business WhatsApp Number</label>
+            <input id="s-biz-wa" class="form-input" value="${p.whatsapp || ''}" placeholder="+91 9876543210"/>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Auto-reminder Messages</label>
+            <select class="form-select">
+              <option>Enabled — Send on due date</option>
+              <option>7 days before due</option>
+              <option>Both</option>
+              <option>Disabled</option>
+            </select>
+          </div>
+          <button class="btn btn-wa" onclick="testWA()">
+            ${svgWA()} Test WhatsApp
+          </button>
+        </div>
+
+        <div class="card" style="border-color:var(--danger);">
+          <h3 style="font-family:var(--font-display);font-weight:700;margin-bottom:12px;color:var(--danger);">⚠️ Danger Zone</h3>
+          <p class="text-sm text-muted" style="margin-bottom:16px;">These actions are irreversible</p>
+          <div class="flex gap-2">
+            <button class="btn btn-danger btn-sm" onclick="doLogout()">Sign Out</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>`;
+}
+
+// ── MODALS ─────────────────────────────────────────────────────────
+function openNewOrderModal() {
+  const niche = NICHES.find(n => n.id === state.profile?.niche);
+  const units = niche?.units || ['pcs', 'kg', 'metres'];
+  openModal(`
+    <div class="modal">
+      <div class="modal-header">
+        <div class="modal-title">📦 New Order</div>
+        <span class="modal-close" onclick="closeModal()">✕</span>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Customer Name *</label>
+        <input id="o-cust" class="form-input" placeholder="Customer name"/>
+      </div>
+      <div class="form-group">
+        <label class="form-label">WhatsApp / Phone</label>
+        <input id="o-phone" class="form-input" type="tel" placeholder="+91 9876543210"/>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Product / Item *</label>
+        <input id="o-prod" class="form-input" list="inv-list" placeholder="Product name"/>
+        <datalist id="inv-list">${state.inventory.map(i => `<option value="${i.name}">`).join('')}</datalist>
+      </div>
+      <div class="form-grid-2">
+        <div class="form-group">
+          <label class="form-label">Quantity *</label>
+          <input id="o-qty" class="form-input" type="number" min="1" value="1"/>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Unit</label>
+          <select id="o-unit" class="form-select">${units.map(u => `<option>${u}</option>`).join('')}</select>
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Rate per unit (₹) *</label>
+        <input id="o-price" class="form-input" type="number" min="0" step="0.01" placeholder="0.00"/>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Discount (%)</label>
+        <input id="o-disc" class="form-input" type="number" min="0" max="100" value="0"/>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Notes</label>
+        <textarea id="o-notes" class="form-textarea" placeholder="Any special instructions..."></textarea>
+      </div>
+      <div class="flex gap-2 justify-end" style="margin-top:8px;">
+        <button class="btn btn-outline" onclick="closeModal()">Cancel</button>
+        <button class="btn btn-primary" onclick="createOrder()">Create Order</button>
+      </div>
+    </div>
+  `);
+}
+
+async function createOrder() {
+  const custName = document.getElementById('o-cust').value;
+  const phone = document.getElementById('o-phone').value;
+  const product = document.getElementById('o-prod').value;
+  const qty = parseFloat(document.getElementById('o-qty').value) || 1;
+  const price = parseFloat(document.getElementById('o-price').value) || 0;
+  const disc = parseFloat(document.getElementById('o-disc').value) || 0;
+  const unit = document.getElementById('o-unit').value;
+  const notes = document.getElementById('o-notes').value;
+  if (!custName || !product) { toast('Customer and product are required', 'error'); return; }
+  const subtotal = qty * price;
+  const total = subtotal - (subtotal * disc / 100);
+  const { error } = await sb.from('orders').insert({
+    user_id: state.user.id,
+    customer_name: custName,
+    customer_phone: phone,
+    product, quantity: qty, unit, price, discount: disc, total, notes,
+    status: 'pending',
+  });
+  if (error) { toast(error.message, 'error'); return; }
+  toast('Order created!', 'success');
+  closeModal();
+  await fetchOrders();
+  render();
+}
+
+function openNewProductModal() {
+  const niche = NICHES.find(n => n.id === state.profile?.niche);
+  const units = niche?.units || ['pcs'];
+  openModal(`
+    <div class="modal">
+      <div class="modal-header">
+        <div class="modal-title">📦 Add Product</div>
+        <span class="modal-close" onclick="closeModal()">✕</span>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Product Name *</label>
+        <input id="p-name" class="form-input" placeholder="Product name"/>
+      </div>
+      <div class="form-grid-2">
+        <div class="form-group">
+          <label class="form-label">SKU / Code</label>
+          <input id="p-sku" class="form-input" placeholder="SKU001"/>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Category</label>
+          <input id="p-cat" class="form-input" placeholder="Category"/>
+        </div>
+      </div>
+      <div class="form-grid-3">
+        <div class="form-group">
+          <label class="form-label">Stock Qty *</label>
+          <input id="p-qty" class="form-input" type="number" min="0" value="0"/>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Min Stock</label>
+          <input id="p-min" class="form-input" type="number" min="0" value="5"/>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Max Stock</label>
+          <input id="p-max" class="form-input" type="number" min="0" value="100"/>
+        </div>
+      </div>
+      <div class="form-grid-2">
+        <div class="form-group">
+          <label class="form-label">Unit</label>
+          <select id="p-unit" class="form-select">${units.map(u => `<option>${u}</option>`).join('')}</select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Price (₹)</label>
+          <input id="p-price" class="form-input" type="number" step="0.01" value="0"/>
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">HSN Code</label>
+        <input id="p-hsn" class="form-input" placeholder="HSN code for GST"/>
+      </div>
+      <div class="flex gap-2 justify-end" style="margin-top:8px;">
+        <button class="btn btn-outline" onclick="closeModal()">Cancel</button>
+        <button class="btn btn-primary" onclick="createProduct()">Add Product</button>
+      </div>
+    </div>
+  `);
+}
+
+async function createProduct() {
+  const name = document.getElementById('p-name').value;
+  if (!name) { toast('Product name is required', 'error'); return; }
+  const { error } = await sb.from('inventory').insert({
+    user_id: state.user.id,
+    name, sku: document.getElementById('p-sku').value,
+    category: document.getElementById('p-cat').value,
+    quantity: parseFloat(document.getElementById('p-qty').value) || 0,
+    min_stock: parseFloat(document.getElementById('p-min').value) || 5,
+    max_stock: parseFloat(document.getElementById('p-max').value) || 100,
+    unit: document.getElementById('p-unit').value,
+    price: parseFloat(document.getElementById('p-price').value) || 0,
+    hsn: document.getElementById('p-hsn').value,
+  });
+  if (error) { toast(error.message, 'error'); return; }
+  toast('Product added!', 'success');
+  closeModal();
+  await fetchInventory();
+  render();
+}
+
+function openNewPaymentModal() {
+  openModal(`
+    <div class="modal">
+      <div class="modal-header">
+        <div class="modal-title">💳 Track Payment</div>
+        <span class="modal-close" onclick="closeModal()">✕</span>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Party Name *</label>
+        <input id="pm-party" class="form-input" placeholder="Customer or Supplier name"/>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Phone / WhatsApp</label>
+        <input id="pm-phone" class="form-input" type="tel" placeholder="+91 9876543210"/>
+      </div>
+      <div class="form-grid-2">
+        <div class="form-group">
+          <label class="form-label">Type *</label>
+          <select id="pm-type" class="form-select">
+            <option value="receivable">Receivable (They owe you)</option>
+            <option value="payable">Payable (You owe them)</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Amount (₹) *</label>
+          <input id="pm-amt" class="form-input" type="number" min="0" step="0.01" placeholder="0.00"/>
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Due Date *</label>
+        <input id="pm-due" class="form-input" type="date" value="${new Date(Date.now() + 30*86400000).toISOString().split('T')[0]}"/>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Invoice / Reference Number</label>
+        <input id="pm-ref" class="form-input" placeholder="INV-001"/>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Notes</label>
+        <textarea id="pm-notes" class="form-textarea" placeholder="Payment details..."></textarea>
+      </div>
+      <div class="flex gap-2 justify-end" style="margin-top:8px;">
+        <button class="btn btn-outline" onclick="closeModal()">Cancel</button>
+        <button class="btn btn-primary" onclick="createPayment()">Add Payment</button>
+      </div>
+    </div>
+  `);
+}
+
+async function createPayment() {
+  const partyName = document.getElementById('pm-party').value;
+  const amount = parseFloat(document.getElementById('pm-amt').value);
+  const dueDate = document.getElementById('pm-due').value;
+  if (!partyName || !amount || !dueDate) { toast('Party, amount and due date required', 'error'); return; }
+  const { error } = await sb.from('payments').insert({
+    user_id: state.user.id,
+    party_name: partyName,
+    party_phone: document.getElementById('pm-phone').value,
+    type: document.getElementById('pm-type').value,
+    amount, due_date: dueDate,
+    reference: document.getElementById('pm-ref').value,
+    notes: document.getElementById('pm-notes').value,
+    status: 'pending',
+  });
+  if (error) { toast(error.message, 'error'); return; }
+  toast('Payment tracked!', 'success');
+  closeModal();
+  await fetchPayments();
+  render();
+}
+
+function openNewSupplierModal() {
+  openModal(`
+    <div class="modal">
+      <div class="modal-header">
+        <div class="modal-title">🏭 Add Supplier</div>
+        <span class="modal-close" onclick="closeModal()">✕</span>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Supplier Name *</label>
+        <input id="sp-name" class="form-input" placeholder="Supplier / Vendor name"/>
+      </div>
+      <div class="form-grid-2">
+        <div class="form-group">
+          <label class="form-label">Phone / WhatsApp</label>
+          <input id="sp-phone" class="form-input" type="tel" placeholder="+91 9876543210"/>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Email</label>
+          <input id="sp-email" class="form-input" type="email" placeholder="supplier@email.com"/>
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Category / Products</label>
+        <input id="sp-cat" class="form-input" placeholder="What do they supply?"/>
+      </div>
+      <div class="form-group">
+        <label class="form-label">GSTIN</label>
+        <input id="sp-gstin" class="form-input" placeholder="Supplier GSTIN"/>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Address</label>
+        <textarea id="sp-addr" class="form-textarea" placeholder="Supplier address..."></textarea>
+      </div>
+      <div class="flex gap-2 justify-end" style="margin-top:8px;">
+        <button class="btn btn-outline" onclick="closeModal()">Cancel</button>
+        <button class="btn btn-primary" onclick="createSupplier()">Add Supplier</button>
+      </div>
+    </div>
+  `);
+}
+
+async function createSupplier() {
+  const name = document.getElementById('sp-name').value;
+  if (!name) { toast('Supplier name required', 'error'); return; }
+  const { error } = await sb.from('suppliers').insert({
+    user_id: state.user.id,
+    name,
+    phone: document.getElementById('sp-phone').value,
+    email: document.getElementById('sp-email').value,
+    category: document.getElementById('sp-cat').value,
+    gstin: document.getElementById('sp-gstin').value,
+    address: document.getElementById('sp-addr').value,
+    outstanding: 0,
+  });
+  if (error) { toast(error.message, 'error'); return; }
+  toast('Supplier added!', 'success');
+  closeModal();
+  await fetchSuppliers();
+  render();
+}
+
+function openNewPostModal() {
+  openModal(`
+    <div class="modal">
+      <div class="modal-header">
+        <div class="modal-title">📝 New Post</div>
+        <span class="modal-close" onclick="closeModal()">✕</span>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Post Type</label>
+        <select id="post-type" class="form-select">
+          <option value="question">❓ Question</option>
+          <option value="market_update">📈 Market Update</option>
+          <option value="announcement">📢 Announcement</option>
+          <option value="deal">🤝 Deal Offer</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Your Message *</label>
+        <textarea id="post-content" class="form-textarea" style="min-height:120px;" placeholder="Share an update, ask a question, or post a deal..."></textarea>
+      </div>
+      <div class="flex gap-2 justify-end" style="margin-top:8px;">
+        <button class="btn btn-outline" onclick="closeModal()">Cancel</button>
+        <button class="btn btn-primary" onclick="createPost()">Post</button>
+      </div>
+    </div>
+  `);
+}
+
+async function createPost() {
+  const content = document.getElementById('post-content').value;
+  if (!content) { toast('Please write something to post', 'error'); return; }
+  const { error } = await sb.from('community_posts').insert({
+    user_id: state.user.id,
+    content,
+    post_type: document.getElementById('post-type').value,
+    niche: state.profile?.niche,
+    upvotes: 0,
+  });
+  if (error) { toast(error.message, 'error'); return; }
+  toast('Posted!', 'success');
+  closeModal();
+  await fetchCommunity();
+  render();
+}
+
+// ── ACTIONS ────────────────────────────────────────────────────────
+function sendOrderWA(orderId) {
+  const order = state.orders.find(o => o.id === orderId);
+  if (!order) return;
+  const biz = state.profile?.business_name || 'BizFlow';
+  const msg = `Dear ${order.customer_name},\n\nYour order has been received:\n📦 ${order.product} — ${order.quantity} ${order.unit || 'pcs'}\n💰 Total: ₹${fmt(order.total)}\n\nThank you for your business!\n— ${biz}`;
+  sendWhatsApp(order.customer_phone || '', msg);
+}
+
+function sendPaymentWA(payId) {
+  const pay = state.payments.find(p => p.id === payId);
+  if (!pay) return;
+  const biz = state.profile?.business_name || 'BizFlow';
+  const days = Math.round((new Date() - new Date(pay.due_date)) / 86400000);
+  const msg = `Dear ${pay.party_name},\n\nThis is a reminder for payment:\n💰 Amount: ₹${fmt(pay.amount)}\n📅 Due Date: ${fmtDate(pay.due_date)}\n${days > 0 ? `⚠️ Overdue by ${days} days\n` : ''}Please arrange payment at the earliest.\n\nThank you!\n— ${biz}`;
+  sendWhatsApp(pay.party_phone || '', msg);
+}
+
+function sendRestockWA(itemId) {
+  const item = state.inventory.find(i => i.id === itemId);
+  if (!item) return;
+  const biz = state.profile?.business_name || 'BizFlow';
+  const sup = state.suppliers[0];
+  const msg = `Dear Supplier,\n\nWe need to reorder:\n📦 Product: ${item.name}\n📊 Current Stock: ${item.quantity} ${item.unit || 'pcs'}\n🔄 Please send quotation for restocking.\n\n— ${biz}`;
+  sendWhatsApp(sup?.phone || '', msg);
+}
+
+function callSupplierWA(supId) {
+  const sup = state.suppliers.find(s => s.id === supId);
+  if (!sup) return;
+  const biz = state.profile?.business_name || 'BizFlow';
+  const msg = `Hello ${sup.name},\n\nThis is ${biz}. We would like to discuss a new order.\n\nPlease let us know your availability.\n\nThank you!`;
+  sendWhatsApp(sup.phone || '', msg);
+}
+
+async function markPaid(payId) {
+  const { error } = await sb.from('payments').update({ status: 'paid' }).eq('id', payId);
+  if (error) { toast(error.message, 'error'); return; }
+  toast('Marked as paid!', 'success');
+  await fetchPayments();
+  render();
+}
+
+function generateInvoice(orderId) {
+  const order = state.orders.find(o => o.id === orderId);
+  if (!order) return;
+  const { jsPDF } = window.jspdf;
+  const doc = new jsPDF();
+  const biz = state.profile?.business_name || 'My Business';
+
+  // Header
+  doc.setFontSize(20);
+  doc.setFont(undefined, 'bold');
+  doc.text('TAX INVOICE', 105, 20, { align: 'center' });
+  doc.setFontSize(14);
+  doc.text(biz, 20, 35);
+  doc.setFont(undefined, 'normal');
+  doc.setFontSize(10);
+  doc.text(`GSTIN: ${state.profile?.gstin || 'N/A'}`, 20, 42);
+  doc.text(`PAN: ${state.profile?.pan || 'N/A'}`, 20, 48);
+  doc.text(state.profile?.address || '', 20, 54);
+
+  // Invoice details
+  const invNo = `INV-${Date.now().toString().slice(-6)}`;
+  doc.setFontSize(10);
+  doc.text(`Invoice No: ${invNo}`, 140, 35);
+  doc.text(`Date: ${new Date().toLocaleDateString('en-IN')}`, 140, 42);
+
+  // Bill To
+  doc.setFont(undefined, 'bold');
+  doc.text('Bill To:', 20, 68);
+  doc.setFont(undefined, 'normal');
+  doc.text(order.customer_name, 20, 75);
+  if (order.customer_phone) doc.text(`Phone: ${order.customer_phone}`, 20, 81);
+
+  // Table header
+  doc.setFillColor(240, 240, 240);
+  doc.rect(20, 90, 170, 8, 'F');
+  doc.setFont(undefined, 'bold');
+  doc.text('Item', 22, 96);
+  doc.text('Qty', 90, 96);
+  doc.text('Rate', 115, 96);
+  doc.text('GST 18%', 140, 96);
+  doc.text('Total', 170, 96);
+
+  // Item row
+  doc.setFont(undefined, 'normal');
+  const gst = (order.total || 0) * 0.18;
+  const baseAmt = (order.total || 0);
+  doc.text(order.product || '', 22, 108);
+  doc.text(`${order.quantity} ${order.unit || ''}`, 90, 108);
+  doc.text(`₹${fmt(order.price || 0)}`, 115, 108);
+  doc.text(`₹${fmt(gst)}`, 140, 108);
+  doc.text(`₹${fmt(baseAmt + gst)}`, 170, 108);
+
+  // Total
+  doc.line(20, 115, 190, 115);
+  doc.setFont(undefined, 'bold');
+  doc.text('Grand Total:', 130, 122);
+  doc.text(`₹${fmt(baseAmt + gst)}`, 170, 122);
+
+  doc.setFont(undefined, 'normal');
+  doc.setFontSize(9);
+  doc.text('Thank you for your business!', 105, 140, { align: 'center' });
+  doc.text(`Generated by BizFlow — bizflow.app`, 105, 148, { align: 'center' });
+
+  doc.save(`Invoice_${order.customer_name}_${invNo}.pdf`);
+  toast('GST Invoice downloaded!', 'success');
+}
+
+async function saveProfile() {
+  const data = {
+    id: state.user.id,
+    business_name: document.getElementById('s-bizname').value,
+    owner_name: document.getElementById('s-owner').value,
+    phone: document.getElementById('s-phone').value,
+    email: document.getElementById('s-email').value,
+    address: document.getElementById('s-addr').value,
+    city: document.getElementById('s-city').value,
+    state: document.getElementById('s-state').value,
+    pin: document.getElementById('s-pin').value,
+    whatsapp: document.getElementById('s-wa').value,
+  };
+  const { error } = await sb.from('profiles').upsert(data);
+  if (error) { toast(error.message, 'error'); return; }
+  state.profile = { ...state.profile, ...data };
+  toast('Profile saved!', 'success');
+}
+
+async function saveTaxInfo() {
+  const data = {
+    id: state.user.id,
+    gstin: document.getElementById('s-gstin').value,
+    pan: document.getElementById('s-pan').value,
+    bank_account: document.getElementById('s-bank').value,
+    ifsc: document.getElementById('s-ifsc').value,
+    bank_name: document.getElementById('s-bankname').value,
+  };
+  const { error } = await sb.from('profiles').upsert(data);
+  if (error) { toast(error.message, 'error'); return; }
+  state.profile = { ...state.profile, ...data };
+  toast('Tax info saved!', 'success');
+}
+
+async function saveRegNumbers() {
+  const data = {
+    id: state.user.id,
+    udyam_number: document.getElementById('udyam').value,
+    gstin: document.getElementById('gstin').value,
+    pan: document.getElementById('pan').value,
+    cin: document.getElementById('cin').value,
+  };
+  const { error } = await sb.from('profiles').upsert(data);
+  if (error) { toast(error.message, 'error'); return; }
+  state.profile = { ...state.profile, ...data };
+  toast('Registration numbers saved!', 'success');
+  render();
+}
+
+async function saveLocation() {
+  const data = {
+    id: state.user.id,
+    business_name: document.getElementById('loc-name').value,
+    address: document.getElementById('loc-addr').value,
+    lat: parseFloat(document.getElementById('loc-lat').value),
+    lng: parseFloat(document.getElementById('loc-lng').value),
+  };
+  const { error } = await sb.from('profiles').upsert(data);
+  if (error) { toast(error.message, 'error'); return; }
+  state.profile = { ...state.profile, ...data };
+  toast('Location saved!', 'success');
+  render();
+}
+
+function detectLocation() {
+  if (!navigator.geolocation) { toast('Geolocation not supported', 'error'); return; }
+  toast('Detecting location...', 'info');
+  navigator.geolocation.getCurrentPosition(pos => {
+    document.getElementById('loc-lat').value = pos.coords.latitude.toFixed(6);
+    document.getElementById('loc-lng').value = pos.coords.longitude.toFixed(6);
+    toast('Location detected!', 'success');
+  }, () => toast('Could not detect location', 'error'));
+}
+
+async function changeNiche(id) {
+  state.profile = { ...state.profile, niche: id };
+  await sb.from('profiles').upsert({ id: state.user.id, niche: id });
+  toast('Business type updated!', 'success');
+  render();
+}
+
+function testWA() {
+  const biz = state.profile?.business_name || 'BizFlow';
+  sendWhatsApp(state.profile?.whatsapp || '', `Hello! This is a test message from ${biz} via BizFlow. WhatsApp integration is working! 🎉`);
+}
+
+async function upvotePost(postId) {
+  const post = state.community.find(p => p.id === postId);
+  if (!post) return;
+  await sb.from('community_posts').update({ upvotes: (post.upvotes || 0) + 1 }).eq('id', postId);
+  await fetchCommunity();
+  render();
+}
+
+function filterPayments(type, btn) {
+  document.querySelectorAll('.tabs .tab').forEach(t => t.classList.remove('active'));
+  btn.classList.add('active');
+  const rows = document.querySelectorAll('#pay-table tbody tr');
+  rows.forEach(row => {
+    if (type === 'all') row.style.display = '';
+    else if (type === 'overdue') row.style.display = row.innerHTML.includes('Overdue') ? '' : 'none';
+    else row.style.display = row.innerHTML.toLowerCase().includes(type) ? '' : 'none';
+  });
+}
+
+function filterTable(input, tableId) {
+  const q = input.value.toLowerCase();
+  document.querySelectorAll(`#${tableId} tbody tr`).forEach(row => {
+    row.style.display = row.textContent.toLowerCase().includes(q) ? '' : 'none';
+  });
+}
+
+// ── NAV & UI CONTROL ───────────────────────────────────────────────
+async function navigate(page) {
+  state.page = page;
+  state.sidebarOpen = false;
+  state.langDropOpen = false;
+  render();
+  // Fetch data for pages
+  if (page === 'orders') await fetchOrders();
+  if (page === 'inventory') await fetchInventory();
+  if (page === 'payments') await fetchPayments();
+  if (page === 'suppliers') await fetchSuppliers();
+  if (page === 'community') await fetchCommunity();
+  render();
+  window.scrollTo(0, 0);
+}
+
+function toggleSidebar() {
+  state.sidebarOpen = !state.sidebarOpen;
+  render();
+}
+
+function toggleTheme() {
+  state.theme = state.theme === 'light' ? 'dark' : 'light';
+  document.documentElement.setAttribute('data-theme', state.theme);
+  localStorage.setItem('theme', state.theme);
+  render();
+}
+
+function setTheme(t) {
+  state.theme = t;
+  document.documentElement.setAttribute('data-theme', t);
+  localStorage.setItem('theme', t);
+  render();
+}
+
+function toggleLangDrop() {
+  state.langDropOpen = !state.langDropOpen;
+  render();
+}
+
+function setLang(code) {
+  state.lang = code;
+  state.langDropOpen = false;
+  localStorage.setItem('lang', code);
+  render();
+}
+
+async function doLogout() {
+  await sb.auth.signOut();
+  state.user = null;
+  state.profile = null;
+  render();
+}
+
+function bindPageEvents() {
+  // Close lang dropdown on outside click
+  document.addEventListener('click', e => {
+    if (state.langDropOpen && !e.target.closest('.lang-switcher')) {
+      state.langDropOpen = false;
+      const dropdown = document.querySelector('.lang-dropdown');
+      if (dropdown) dropdown.classList.add('hidden');
+    }
+  }, { once: true });
+}
+
+// ── UTILS ──────────────────────────────────────────────────────────
+function fmt(n) {
+  if (!n && n !== 0) return '0';
+  return Number(n).toLocaleString('en-IN', { maximumFractionDigits: 0 });
+}
+
+function fmtDate(d) {
+  if (!d) return '—';
+  return new Date(d).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' });
+}
+
+function statusBadge(s) {
+  const map = {
+    pending: '<span class="badge badge-warning">Pending</span>',
+    confirmed: '<span class="badge badge-info">Confirmed</span>',
+    delivered: '<span class="badge badge-success">Delivered</span>',
+    cancelled: '<span class="badge badge-danger">Cancelled</span>',
+  };
+  return map[s] || `<span class="badge badge-neutral">${s || 'N/A'}</span>`;
+}
+
+// ── SVG ICONS ──────────────────────────────────────────────────────
+function svgDashboard() { return `<svg viewBox="0 0 20 20" fill="currentColor"><path d="M3 4a1 1 0 011-1h3a1 1 0 011 1v3a1 1 0 01-1 1H4a1 1 0 01-1-1V4zm0 7a1 1 0 011-1h3a1 1 0 011 1v5a1 1 0 01-1 1H4a1 1 0 01-1-1v-5zm8-7a1 1 0 011-1h3a1 1 0 011 1v5a1 1 0 01-1 1h-3a1 1 0 01-1-1V4zm0 8a1 1 0 011-1h3a1 1 0 011 1v3a1 1 0 01-1 1h-3a1 1 0 01-1-1v-3z"/></svg>`; }
+function svgOrders() { return `<svg viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M4 4a2 2 0 012-2h4.586A2 2 0 0112 2.586L15.414 6A2 2 0 0116 7.414V16a2 2 0 01-2 2H6a2 2 0 01-2-2V4z" clip-rule="evenodd"/></svg>`; }
+function svgInventory() { return `<svg viewBox="0 0 20 20" fill="currentColor"><path d="M4 3a2 2 0 100 4h12a2 2 0 100-4H4z"/><path fill-rule="evenodd" d="M3 8h14v7a2 2 0 01-2 2H5a2 2 0 01-2-2V8zm5 3a1 1 0 011-1h2a1 1 0 110 2H9a1 1 0 01-1-1z" clip-rule="evenodd"/></svg>`; }
+function svgPayments() { return `<svg viewBox="0 0 20 20" fill="currentColor"><path d="M4 4a2 2 0 00-2 2v1h16V6a2 2 0 00-2-2H4z"/><path fill-rule="evenodd" d="M18 9H2v5a2 2 0 002 2h12a2 2 0 002-2V9zM4 13a1 1 0 011-1h1a1 1 0 110 2H5a1 1 0 01-1-1zm5-1a1 1 0 100 2h1a1 1 0 100-2H9z" clip-rule="evenodd"/></svg>`; }
+function svgSuppliers() { return `<svg viewBox="0 0 20 20" fill="currentColor"><path d="M9 6a3 3 0 11-6 0 3 3 0 016 0zM17 6a3 3 0 11-6 0 3 3 0 016 0zM12.93 17c.046-.327.07-.66.07-1a6.97 6.97 0 00-1.5-4.33A5 5 0 0119 16v1h-6.07zM6 11a5 5 0 015 5v1H1v-1a5 5 0 015-5z"/></svg>`; }
+function svgCommunity() { return `<svg viewBox="0 0 20 20" fill="currentColor"><path d="M13 6a3 3 0 11-6 0 3 3 0 016 0zM18 8a2 2 0 11-4 0 2 2 0 014 0zM14 15a4 4 0 00-8 0v3h8v-3zM6 8a2 2 0 11-4 0 2 2 0 014 0zM16 18v-3a5.972 5.972 0 00-.75-2.906A3.005 3.005 0 0119 15v3h-3zM4.75 12.094A5.973 5.973 0 004 15v3H1v-3a3 3 0 013.75-2.906z"/></svg>`; }
+function svgGov() { return `<svg viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M4 4a2 2 0 012-2h4.586A2 2 0 0112 2.586L15.414 6A2 2 0 0116 7.414V16a2 2 0 01-2 2H6a2 2 0 01-2-2V4zm2 6a1 1 0 011-1h6a1 1 0 110 2H7a1 1 0 01-1-1zm1 3a1 1 0 100 2h6a1 1 0 100-2H7z" clip-rule="evenodd"/></svg>`; }
+function svgLocation() { return `<svg viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M5.05 4.05a7 7 0 119.9 9.9L10 18.9l-4.95-4.95a7 7 0 010-9.9zM10 11a2 2 0 100-4 2 2 0 000 4z" clip-rule="evenodd"/></svg>`; }
+function svgSettings() { return `<svg viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M11.49 3.17c-.38-1.56-2.6-1.56-2.98 0a1.532 1.532 0 01-2.286.948c-1.372-.836-2.942.734-2.106 2.106.54.886.061 2.042-.947 2.287-1.561.379-1.561 2.6 0 2.978a1.532 1.532 0 01.947 2.287c-.836 1.372.734 2.942 2.106 2.106a1.532 1.532 0 012.287.947c.379 1.561 2.6 1.561 2.978 0a1.533 1.533 0 012.287-.947c1.372.836 2.942-.734 2.106-2.106a1.533 1.533 0 01.947-2.287c1.561-.379 1.561-2.6 0-2.978a1.532 1.532 0 01-.947-2.287c.836-1.372-.734-2.942-2.106-2.106a1.532 1.532 0 01-2.287-.947zM10 13a3 3 0 100-6 3 3 0 000 6z" clip-rule="evenodd"/></svg>`; }
+function svgLogout() { return `<svg viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M3 3a1 1 0 00-1 1v12a1 1 0 102 0V4a1 1 0 00-1-1zm10.293 9.293a1 1 0 001.414 1.414l3-3a1 1 0 000-1.414l-3-3a1 1 0 10-1.414 1.414L14.586 9H7a1 1 0 100 2h7.586l-1.293 1.293z" clip-rule="evenodd"/></svg>`; }
+function svgMenu() { return `<svg viewBox="0 0 20 20" fill="currentColor" width="18" height="18"><path fill-rule="evenodd" d="M3 5a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zM3 10a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zM3 15a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1z" clip-rule="evenodd"/></svg>`; }
+function svgSearch() { return `<svg width="14" height="14" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z" clip-rule="evenodd"/></svg>`; }
+function svgMoon() { return `<svg viewBox="0 0 20 20" fill="currentColor" width="16" height="16"><path d="M17.293 13.293A8 8 0 016.707 2.707a8.001 8.001 0 1010.586 10.586z"/></svg>`; }
+function svgSun() { return `<svg viewBox="0 0 20 20" fill="currentColor" width="16" height="16"><path fill-rule="evenodd" d="M10 2a1 1 0 011 1v1a1 1 0 11-2 0V3a1 1 0 011-1zm4 8a4 4 0 11-8 0 4 4 0 018 0zm-.464 4.95l.707.707a1 1 0 001.414-1.414l-.707-.707a1 1 0 00-1.414 1.414zm2.12-10.607a1 1 0 010 1.414l-.706.707a1 1 0 11-1.414-1.414l.707-.707a1 1 0 011.414 0zM17 11a1 1 0 100-2h-1a1 1 0 100 2h1zm-7 4a1 1 0 011 1v1a1 1 0 11-2 0v-1a1 1 0 011-1zM5.05 6.464A1 1 0 106.465 5.05l-.708-.707a1 1 0 00-1.414 1.414l.707.707zm1.414 8.486l-.707.707a1 1 0 01-1.414-1.414l.707-.707a1 1 0 011.414 1.414zM4 11a1 1 0 100-2H3a1 1 0 000 2h1z" clip-rule="evenodd"/></svg>`; }
+function svgWA() { return `<svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>`; }
+
+// ── INIT ───────────────────────────────────────────────────────────
+async function loadUserData() {
+  if (!state.user) return;
+  state.profile = await fetchProfile(state.user.id);
+  if (!state.profile) {
+    await sb.from('profiles').upsert({ id: state.user.id, email: state.user.email });
+    state.profile = { id: state.user.id, email: state.user.email };
+  }
+  await Promise.all([fetchOrders(), fetchInventory(), fetchPayments(), fetchSuppliers(), fetchCommunity()]);
+}
+
+async function init() {
+  // Handle OAuth callback
+  const { data: { session } } = await sb.auth.getSession();
+  if (session?.user) {
+    state.user = session.user;
+    await loadUserData();
+  }
+
+  render();
+
+  // Auth state changes
+  sb.auth.onAuthStateChange(async (event, session) => {
+    if (event === 'SIGNED_IN' && session?.user) {
+      state.user = session.user;
+      await loadUserData();
+      render();
+    } else if (event === 'SIGNED_OUT') {
+      state.user = null;
+      state.profile = null;
+      render();
+    }
+  });
+}
+
+init();
+</script>
+</body>
+</html>

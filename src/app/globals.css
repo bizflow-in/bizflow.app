@@ -1,0 +1,137 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --radius: 0.75rem;
+    --brand: 142 71% 45%;
+  }
+
+  * {
+    box-sizing: border-box;
+  }
+
+  body {
+    @apply text-gray-900 bg-gray-50;
+    font-size: 16px;
+  }
+
+  /* Minimum touch target */
+  button, a, input, select, textarea {
+    min-height: 44px;
+  }
+}
+
+@layer components {
+  .card {
+    @apply bg-white rounded-2xl shadow-sm border border-gray-100 p-6;
+  }
+
+  .btn-primary {
+    @apply inline-flex items-center justify-center gap-2 px-5 py-3 bg-brand-600 hover:bg-brand-700 text-white font-medium rounded-xl transition-all duration-200 active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed min-h-[48px];
+  }
+
+  .btn-secondary {
+    @apply inline-flex items-center justify-center gap-2 px-5 py-3 bg-white hover:bg-gray-50 text-gray-700 font-medium rounded-xl border border-gray-200 transition-all duration-200 active:scale-95 disabled:opacity-50 min-h-[48px];
+  }
+
+  .btn-ghost {
+    @apply inline-flex items-center justify-center gap-2 px-4 py-2.5 text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-xl transition-all duration-200 min-h-[44px];
+  }
+
+  .input {
+    @apply w-full px-4 py-3 rounded-xl border border-gray-200 bg-white text-gray-900 placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-transparent transition-all duration-200 min-h-[48px] text-base;
+  }
+
+  .label {
+    @apply block text-sm font-medium text-gray-700 mb-1.5;
+  }
+
+  .badge {
+    @apply inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium;
+  }
+
+  .stat-card {
+    @apply bg-white rounded-2xl border border-gray-100 shadow-sm p-5 flex flex-col gap-1;
+  }
+
+  .nav-item {
+    @apply flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all duration-200 cursor-pointer;
+  }
+
+  .nav-item-active {
+    @apply bg-brand-50 text-brand-700;
+  }
+
+  .nav-item-inactive {
+    @apply text-gray-600 hover:bg-gray-50 hover:text-gray-900;
+  }
+
+  .page-header {
+    @apply flex items-center justify-between mb-6;
+  }
+
+  .page-title {
+    @apply text-2xl font-bold text-gray-900;
+  }
+
+  .table-container {
+    @apply bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden;
+  }
+
+  .table-row {
+    @apply border-b border-gray-50 hover:bg-gray-50 transition-colors duration-150;
+  }
+
+  /* WhatsApp simulation */
+  .wa-bubble {
+    @apply bg-[#dcf8c6] rounded-2xl rounded-tl-sm px-4 py-3 max-w-xs text-sm shadow-sm;
+  }
+
+  .wa-bubble-incoming {
+    @apply bg-white rounded-2xl rounded-tl-sm px-4 py-3 max-w-xs text-sm shadow-sm;
+  }
+
+  /* Status badges */
+  .status-pending { @apply badge bg-yellow-100 text-yellow-800; }
+  .status-confirmed { @apply badge bg-blue-100 text-blue-800; }
+  .status-processing { @apply badge bg-purple-100 text-purple-800; }
+  .status-dispatched { @apply badge bg-indigo-100 text-indigo-800; }
+  .status-delivered { @apply badge bg-green-100 text-green-800; }
+  .status-cancelled { @apply badge bg-red-100 text-red-800; }
+  .status-paid { @apply badge bg-green-100 text-green-800; }
+  .status-unpaid { @apply badge bg-red-100 text-red-800; }
+  .status-partial { @apply badge bg-orange-100 text-orange-800; }
+
+  /* Shimmer loading */
+  .shimmer {
+    background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+    background-size: 200% 100%;
+    @apply animate-shimmer;
+  }
+
+  /* Green stock bar */
+  .stock-bar {
+    @apply h-2 rounded-full bg-gray-100 overflow-hidden;
+  }
+  .stock-fill-high { @apply h-full bg-brand-500 rounded-full transition-all; }
+  .stock-fill-mid { @apply h-full bg-yellow-500 rounded-full transition-all; }
+  .stock-fill-low { @apply h-full bg-red-500 rounded-full transition-all; }
+}
+
+/* Scrollbar */
+::-webkit-scrollbar { width: 6px; height: 6px; }
+::-webkit-scrollbar-track { background: #f1f5f9; }
+::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+
+/* Animations */
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.animate-in {
+  animation: fadeIn 0.3s ease-out;
+}
