@@ -1016,9 +1016,16 @@ async function doRegister() {
 }
 
 async function doGoogleLogin() {
+  const redirectTo = 'https://deluxe-blini-697c27.netlify.app';
   const { error } = await sb.auth.signInWithOAuth({
     provider: 'google',
-    options: { redirectTo: window.location.href }
+    options: { 
+      redirectTo: redirectTo,
+      queryParams: {
+        access_type: 'offline',
+        prompt: 'consent',
+      }
+    }
   });
   if (error) toast(error.message, 'error');
 }
